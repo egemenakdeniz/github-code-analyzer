@@ -42,7 +42,7 @@ spring.datasource.password=${DB_PASSWORD}
 
 ### 🧠 Yapay Zeka Desteği
 
-Uygulama, yerel çalışan modellerle (örn. Ollama) veya OpenAI API ile analiz gerçekleştirebilir.
+Uygulama, yerel çalışan modellerle (Ollama) veya OpenAI API ile analiz gerçekleştirebilir.
 
 ---
 
@@ -89,7 +89,3 @@ npm run dev
 ```
 
 ---
-
-## 📄 Lisans
-
-MIT Lisansı ile lisanslanmıştır.
