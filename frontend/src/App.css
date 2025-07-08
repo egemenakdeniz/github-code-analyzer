@@ -1,0 +1,79 @@
+body {
+  font-family: sans-serif;
+  background-color: #f0f4ff;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 60px;
+  padding: 40px;
+}
+
+.left-panel, .right-panel {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 400px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+label {
+  font-size: 16px;
+  margin-top: 10px;
+  display: block;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #1e90ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #0d70d1;
+}
+
+.loaded-area {
+  background-color: #eef3ff;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-size: 15px;
+
+  /* Kaydırma özellikleri */
+  max-height: 250px;      /* yükseklik sınırlaması */
+  overflow-y: auto;       /* dikeyde scroll aktif */
+}
+.loaded-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.loaded-area::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 10px;
+}
