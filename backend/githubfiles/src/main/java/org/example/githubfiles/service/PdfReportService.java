@@ -109,8 +109,13 @@ public class PdfReportService {
 
         Paragraph title = new Paragraph(repo.getUserName()+"-"+repo.getRepoName(), titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
-        title.setSpacingAfter(30);
+        title.setSpacingAfter(5);
         document.add(title);
+
+        Paragraph date = new Paragraph(LocalDateTime.now().toLocalDate().toString().replace(":", "-"));
+        date.setAlignment(Element.ALIGN_CENTER);
+        date.setSpacingAfter(30);
+        document.add(date);
 
         Paragraph title_ai = new Paragraph("AI Code Analysis Report", titleFont_ai);
         title_ai.setAlignment(Element.ALIGN_CENTER);

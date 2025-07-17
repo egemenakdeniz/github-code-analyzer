@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function RepoForm() {
+export default function RepoForm({ onRepoAdded }) {
   const [username, setUsername] = useState("");
   const [repo, setRepo] = useState("");
   const [branch, setBranch] = useState("main");
@@ -23,9 +23,17 @@ export default function RepoForm() {
       branch: branch
     });
 
-    fetch(`http://localhost:8080/api/repositories/import?${params.toString()}`, {
-      method: "POST"
-    })
+    fetch("http://localhost:8080/api/repositories/import", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    userName: username,
+    repoName: repo,
+    branchName: branch
+  })
+})
       .then(res => {
         if (!res.ok) {
           return res.text().then(text => {
@@ -37,6 +45,7 @@ export default function RepoForm() {
       .then(data => {
         setResponse({ status: "success", message: data });
         setError(null);
+        onRepoAdded?.(); // 👈 burada tetikle
       })
       .catch(err => {
         setError("Hata: " + err.message);

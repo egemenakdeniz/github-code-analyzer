@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Duration;
 import java.util.List;
 
 
@@ -19,7 +20,7 @@ public class GPTService {
 
     public GPTService(@Value("${OPENAI_API_KEY}") String apiKey) {
         //System.out.println(apiKey);
-        this.openAiService = new OpenAiService(apiKey);
+        this.openAiService = new OpenAiService(apiKey, Duration.ofSeconds(60));
     }
 
     public String analyzeWithModel(String inputText) {

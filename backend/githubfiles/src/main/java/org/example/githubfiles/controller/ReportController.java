@@ -40,8 +40,8 @@ public class ReportController {
             description = "Returns a list of report previews for the given GitHub repository and branch",
             responses = {
                     @ApiResponse(
-                            responseCode = "404",
-                            description = "Repository not found",
+                            responseCode = "200",
+                            description = "",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReportPreviewDto.class))
                     )
             }
@@ -73,12 +73,12 @@ public class ReportController {
             description = "Returns the binary content of a PDF file given its absolute path",
             responses = {
                     @ApiResponse(
-                            responseCode = "404",
-                            description = "File not found"
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "Internal server error while reading file"
+                            responseCode = "200",
+                            description = "PDF file returned successfully",
+                            content = @Content(
+                                    mediaType = "application/pdf",
+                                    schema = @Schema(type = "string", format = "binary")
+                            )
                     )
             }
     )

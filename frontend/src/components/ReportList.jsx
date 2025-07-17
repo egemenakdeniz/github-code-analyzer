@@ -20,7 +20,7 @@ export default function ReportList() {
   }, [owner, repo, branch]);
 
   return (
-    <div style={{ padding: "30px" }}>
+    <div style={{ padding: "30px"}}>
       <h2>{owner}/{repo}/{branch} için raporlar</h2>
       {reports.length === 0 && <p>Hiç rapor bulunamadı.</p>}
       {reports.map((r, i) => (

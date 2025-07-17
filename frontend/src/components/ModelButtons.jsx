@@ -1,4 +1,4 @@
-export default function ModelButtons({ selectedRepo }) {
+export default function ModelButtons({ selectedRepo , onAnalysisComplete}) {
 
      const handleAnalyze = async (modelName) => {
     if (!selectedRepo) {
@@ -24,6 +24,7 @@ export default function ModelButtons({ selectedRepo }) {
 
       if (res.ok && data.success) {
         alert(data.message);//
+        onAnalysisComplete?.();
       } else {
         alert("Hata: " + (data.message || "Bilinmeyen hata"));
       }

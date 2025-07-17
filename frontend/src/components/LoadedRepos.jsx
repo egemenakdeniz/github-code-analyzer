@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./LoadedRepos.css";
 
-export default function LoadedRepos({ selectedRepo, setSelectedRepo }) {
+export default function LoadedRepos({ selectedRepo, setSelectedRepo,reloadTrigger}) {
     const [repos, setRepos] = useState([]);
   
 
@@ -18,7 +18,7 @@ useEffect(() => {
       }));
       setRepos(enriched);
     });
-}, []);
+}, [reloadTrigger]);
 
 const handleRefresh = async (repoId) => {
   try {
@@ -43,19 +43,21 @@ const handleRefresh = async (repoId) => {
       body: JSON.stringify(payload),
     });
 
+    const data = await res.json();
+
     if (!res.ok) throw new Error("Güncelleme başarısız");
 
     setRepos(prev =>
       prev.map(r => r.id === repoId ? { ...r, loading: false } : r)
     );
 
-    alert("Repository başarıyla güncellendi.");
+    alert(data.message);
   } catch (err) {
     setRepos(prev =>
       prev.map(r => r.id === repoId ? { ...r, loading: false } : r)
     );
     console.error("Hata:", err);
-    alert("Güncelleme sırasında bir hata oluştu.");
+    alert("Güncelleme sırasında bir hata oluştu." +err.message);
   }
 };
 
@@ -81,7 +83,7 @@ const handleRefresh = async (repoId) => {
         x.repoName === r.repo &&
         x.branchName === r.branch
       );
-
+  alert("Kontrol Başarılı");
       return match
         ? { ...r, changed: match.upToDate === false }
         : r;
