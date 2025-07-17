@@ -40,7 +40,7 @@ public class FileService {
 
             List<File> currentFiles = fileRepository.findByRepositoryIdAndIsActiveTrue(repo.getId());
             List<File> latestFiles = githubService.fetchFilesFromRepo(
-                    repo.getUserName(), repo.getRepoName(), repo.getBranchName()
+                    repo
             );
             if (hasChanged(currentFiles, latestFiles)) {
                 repositoryRepository.markAsOutdated(repo.getId());

@@ -37,7 +37,24 @@ public class RepositoryService {
 
         Repository savedRepo = repositoryRepository.save(repo);
 
-        List<File> fetchedFiles = githubService.fetchFilesFromRepo(username, repoName, branch);
+        List<File> fetchedFiles = githubService.fetchFilesFromRepo(repo);
+        fileService.saveFilesWithRepository(fetchedFiles, savedRepo);
+    }
+
+    public void saveRepositoryAndFiles(Repository repository) {
+        boolean exists = repositoryRepository.findByUserNameAndRepoNameAndBranchName(repository.getUserName(), repository.getRepoName(), repository.getBranchName()).isPresent();
+
+        if (exists) {
+            throw new IllegalArgumentException("Repository " + repository.getRepoName() + " already exists");
+        }
+
+        repository.setUrl("https://github.com/" + repository.getUserName() + "/" + repository.getRepoName());
+        repository.setCreatedAt(LocalDate.now());
+        repository.setUpToDate(true);
+
+        Repository savedRepo = repositoryRepository.save(repository);
+
+        List<File> fetchedFiles = githubService.fetchFilesFromRepo(repository);
         fileService.saveFilesWithRepository(fetchedFiles, savedRepo);
     }
 }
