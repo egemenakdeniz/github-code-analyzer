@@ -1,29 +1,19 @@
 package org.example.githubfiles.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
-
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@Builder
 @Schema(description = "Standard API response wrapper containing status, success flag, and message")
 public class ApiResponseDto {
 
-    public String getMessage() {return message;}
-
-    public void setMessage(String message) {this.message = message;}
-
-    public boolean isSuccess() {return success;}
-
-    public void setSuccess(boolean success) {this.success = success;}
-
-    public int getStatus() {return status;}
-
-    public void setStatus(int status) {this.status = status;}
-
-    public LocalDateTime getTimestamp() {return timestamp;}
-
-    public void setTimestamp(LocalDateTime timestamp) {this.timestamp = timestamp;}
-
+    @Builder.Default
     @Schema(description = "Timestamp when the response was generated", example = "2025-07-15T14:30:00")
-    private LocalDateTime timestamp;
+    private LocalDateTime timestamp = LocalDateTime.now();
 
     @Schema(description = "HTTP status code representing the result of the operation", example = "200")
     private int status;
@@ -34,19 +24,29 @@ public class ApiResponseDto {
     @Schema(description = "Human-readable message describing the result of the operation", example = "Analysis completed successfully")
     private String message;
 
+/*
     public ApiResponseDto(boolean success, int status, String message) {
         this.timestamp = LocalDateTime.now();
         this.status = status;
         this.success = success;
         this.message = message;
     }
-
-    public static ApiResponseDto failure(int status, String message) {
-        return new ApiResponseDto(false, status, message);
-    }
+*/
 
     public static ApiResponseDto success(String message) {
-        return new ApiResponseDto(true, 200, message);
+        return ApiResponseDto.builder()
+                .success(true)
+                .status(200)
+                .message(message)
+                .build();
+    }
+
+    public static ApiResponseDto failure(int status, String message) {
+        return ApiResponseDto.builder()
+                .success(false)
+                .status(status)
+                .message(message)
+                .build();
     }
 
 }

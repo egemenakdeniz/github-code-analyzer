@@ -1,9 +1,12 @@
 package org.example.githubfiles.service;
 
+import org.example.githubfiles.exception.*;
 import org.example.githubfiles.model.File;
 import org.example.githubfiles.model.Repository;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.json.*;
 
@@ -23,67 +26,45 @@ public class GithubService {
             ".xml", ".yml", ".yaml", ".sh", ".bat",".ino"
     );
 
-    public List<File> fetchFilesFromRepo(String owner, String repo, String branch) {
-        List<File> files = new ArrayList<>();
-        //System.out.println("GITHUB_TOKEN = " + token);
-
-
-        String treeUrl = String.format("%s/repos/%s/%s/git/trees/%s?recursive=1", GITHUB_API, owner, repo, branch);
-
-        HttpHeaders headers = buildHeaders();
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = new RestTemplate().exchange(treeUrl, HttpMethod.GET, entity, String.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            JSONArray tree = new JSONObject(response.getBody()).getJSONArray("tree");
-
-            for (int i = 0; i < tree.length(); i++) {
-                JSONObject item = tree.getJSONObject(i);
-                if ("blob".equals(item.getString("type"))) {
-                    String path = item.getString("path");
-                    String sha = item.getString("sha");
-
-                    if (isCodeFile(path)) {continue;}
-                    //System.out.println(sha);
-                    try {
-                        String content = fetchFileContent(owner, repo, path, branch);
-                        content = content.replace("\u0000", "");
-
-                        File file = new File();
-                        file.setPath(path);
-                        file.setContent(content);
-                        file.setType("code"); // Şimdilik sabit
-                        file.setHash(sha);
-                        file.setRepository(null);
-
-                        files.add(file);
-                    } catch (Exception ignored) {}
-                }
-            }
-        }
-        return files;
-    }
-
     public List<File> fetchFilesFromRepo(Repository repository) {
+
+        if (token == null || token.isBlank()) {
+            throw new GithubTokenMissingException("GitHub token is not set in environment variables");
+        }
+
+        if (repository.getUserName() == null || repository.getRepoName() == null || repository.getBranchName() == null) {
+            throw new InvalidRepositoryMetadataException("Repository metadata (username, reponame or branch) is incomplete");
+        }
         List<File> files = new ArrayList<>();
-        //System.out.println("GITHUB_TOKEN = " + token);
         String treeUrl = String.format("%s/repos/%s/%s/git/trees/%s?recursive=1", GITHUB_API, repository.getUserName(), repository.getRepoName(), repository.getBranchName());
 
         HttpHeaders headers = buildHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<String> response = new RestTemplate().exchange(treeUrl, HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> response;
+        try {
+            response = new RestTemplate().exchange(treeUrl, HttpMethod.GET, entity, String.class);
+        }
+        catch (HttpClientErrorException.NotFound e) {
+            throw new RepositoryNotFoundException("Repository or branch not found: " + repository.getRepoName());
+        }
+        catch (HttpClientErrorException.Forbidden e){
+            throw new GithubApiRateLimitExceededException("Github API rate limit exceeded");
+        }
 
         if (response.getStatusCode().is2xxSuccessful()) {
-            JSONArray tree = new JSONObject(response.getBody()).getJSONArray("tree");
+            JSONArray tree;
+            try {
+                tree = new JSONObject(response.getBody()).getJSONArray("tree");
+            } catch (JSONException e) {
+                throw new MalformedGithubApiResponseException("Failed to parse GitHub API response");
+            }
 
             for (int i = 0; i < tree.length(); i++) {
                 JSONObject item = tree.getJSONObject(i);
                 if ("blob".equals(item.getString("type"))) {
                     String path = item.getString("path");
                     String sha = item.getString("sha");
-
 
                     if (!isCodeFile(path)) {continue;}
                     //System.out.println(sha);
@@ -91,7 +72,7 @@ public class GithubService {
                         String content = fetchFileContent(repository.getUserName(), repository.getRepoName(),path, repository.getBranchName());
 
                         if (content.contains("\u0000")) {
-                            System.out.println("Skipped binary file with null byte: " + path);
+                            //System.out.println("Skipped binary file with null byte: " + path);
                             continue;
                         }
 
@@ -103,7 +84,9 @@ public class GithubService {
                         file.setRepository(null);
 
                         files.add(file);
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        throw new FileContentFetchException("Failed to parse GitHub API response");
+                    }
                 }
             }
         }
@@ -116,14 +99,33 @@ public class GithubService {
         HttpHeaders headers = buildHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<String> response = new RestTemplate().exchange(fileUrl, HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> response;
+        try {
+            response = new RestTemplate().exchange(fileUrl, HttpMethod.GET, entity, String.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new FileNotFoundOnGithubException("File not found on GitHub: " + path);
+        } catch (HttpClientErrorException.Forbidden e) {
+            if (e.getResponseBodyAsString().contains("rate limit")) {
+                throw new GithubApiRateLimitExceededException("Rate limit exceeded while fetching file: " + path);
+            } else {
+                throw new GithubAuthenticationException("GitHub token invalid or unauthorized for file: " + path);
+            }
+        } catch (RestClientException e) {
+            throw new GithubServiceException("Unexpected error while fetching file from GitHub: " + path);
+        }
 
-        if (response.getStatusCode().is2xxSuccessful()) {
+        try {
             JSONObject json = new JSONObject(response.getBody());
+            if (!json.has("content")) {
+                throw new FileContentMissingException("File content not found in GitHub response for file: " + path);
+            }
+
             String encoded = json.getString("content");
             return new String(Base64.getDecoder().decode(encoded.replaceAll("\\s", "")), StandardCharsets.UTF_8);
+
+        } catch (JSONException | IllegalArgumentException e) {
+            throw new FileContentParseException("Failed to parse or decode content for file: " + path);
         }
-        return "";
     }
 
     private HttpHeaders buildHeaders() {
@@ -132,6 +134,7 @@ public class GithubService {
         headers.set("Accept", "application/vnd.github.v3+json");
         return headers;
     }
+
     private boolean isCodeFile(String path) {
         return CODE_EXTENSIONS.stream().anyMatch(path::endsWith);
     }

@@ -3,12 +3,16 @@ package org.example.githubfiles.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-
-
+@NoArgsConstructor
+@Getter @Setter
 @Entity
 @Table(name = "files")
 public class File {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,35 +36,5 @@ public class File {
     @Column(nullable = false)
     private boolean isActive = true;
 
-    public boolean isActive() {return isActive;}
-
-    public void setActive(boolean active) {isActive = active;}
-
-    public Long getId() {return id;}
-
-    public void setId(Long id) {this.id = id;}
-
-    public String getHash() {return hash;}
-
-    public void setHash(String hash) {this.hash = hash;}
-
-    public String getType() {return type;}
-
-    public void setType(String type) {this.type = type;}
-
-    public String getContent() {return content;}
-
-    public void setContent(String content) {this.content = content;}
-
-    public String getPath() {return path;}
-
-    public void setPath(String path) {this.path = path;}
-
-    public Repository getRepository() {return repository;}
-
-    public void setRepository(Repository repository) {this.repository = repository;}
-
-    public File() {
-    }
 
 }

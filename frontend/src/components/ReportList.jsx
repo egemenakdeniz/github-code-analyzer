@@ -12,11 +12,18 @@ export default function ReportList() {
     if (!owner || !repo || !branch) return;
 
     fetch(`http://localhost:8080/api/reports/of-repo?owner=${owner}&repo=${repo}&branch=${branch}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("Gelen veri:", data);
-        setReports(data);
-      });
+      .then(res => {
+    if (!res.ok) throw new Error("Raporlar alınamadı");
+    return res.json();
+  })
+  .then(data => {
+    console.log("Gelen veri:", data);
+    setReports(data);
+  })
+  .catch(err => {
+    console.error("Hata:", err);
+    setReports([]);
+  });
   }, [owner, repo, branch]);
 
   return (
@@ -26,7 +33,7 @@ export default function ReportList() {
       {reports.map((r, i) => (
         <div
           key={i}
-          onClick={() => window.open(`http://localhost:8080/api/reports/open-pdf?path=${encodeURIComponent(r.filePath)}`,'_blank','width=1000,height=800,top=100,left=200,noopener,noreferrer')}
+          onClick={() => {alert(r.reportId),window.open(`http://localhost:8080/api/reports/open-pdf?reportId=${r.reportId}`,'_blank','width=1000,height=800,top=100,left=200,noopener,noreferrer')}}
           style={{
             cursor: "pointer",
             padding: "10px",

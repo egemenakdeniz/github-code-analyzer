@@ -75,6 +75,7 @@ const handleRefresh = async (repoId) => {
   const res = await fetch("http://localhost:8080/api/repositories/has-any-changed");
   const result = await res.json();
   console.log("Gelen sonuç:", result);
+  alert("Kontrol Başarılı");
 
   setRepos(prev =>
     prev.map(r => {
@@ -83,7 +84,6 @@ const handleRefresh = async (repoId) => {
         x.repoName === r.repo &&
         x.branchName === r.branch
       );
-  alert("Kontrol Başarılı");
       return match
         ? { ...r, changed: match.upToDate === false }
         : r;
@@ -111,7 +111,7 @@ const handleRefresh = async (repoId) => {
           key={r.id}
           style={{
             display: "flex",
-            justifyContent: "space-between", // ✅ Refresh sağa gider
+            justifyContent: "space-between",
             alignItems: "center",
             padding: "10px 12px",
             borderRadius: "8px",
@@ -148,8 +148,8 @@ const handleRefresh = async (repoId) => {
                 color: r.hasAnalysis ? "#0077cc" : "#aaa",
                 textDecoration: r.hasAnalysis ? "underline" : "none",
                 fontSize: "0.9rem",
-                whiteSpace: "normal",        // ✅ çok uzun ise alt satıra geçsin
-                wordBreak: "break-word",     // ✅ bölerek sığsın
+                whiteSpace: "normal",     
+                wordBreak: "break-word",     
                 lineHeight: "1.3"
               }}
             >
@@ -160,7 +160,7 @@ const handleRefresh = async (repoId) => {
           {/* Sağ: Refresh ikonu */}
           <span
             className={r.loading ? "refresh-icon spinning" : "refresh-icon"}
-            onClick={() => handleRefresh(r.id)}
+            onClick={() => {handleRefresh(r.id); handleCheckAll();}}
             title="Bu repoyu güncelle"
             style={{ cursor: "pointer", fontSize: "1.2rem", marginLeft: "10px" }}
           >

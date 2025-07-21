@@ -6,32 +6,25 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import okhttp3.Response;
+import lombok.RequiredArgsConstructor;
 import org.example.githubfiles.dto.AnalyzeRequestDto;
 import org.example.githubfiles.dto.ApiResponseDto;
 import org.example.githubfiles.service.AnalysisService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.example.githubfiles.model.*;
-import org.example.githubfiles.config.*;
 
 @Tag(name = "Analysis Controller", description = "Endpoints for triggering AI-based code analysis on repositories")
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/analyze")
 public class AnalysisController {
 
     private final AnalysisService analysisService;
 
-
-    @Autowired
-    private ModelMapper modelMapper;
-
-    public AnalysisController(AnalysisService analysisService) {
-        this.analysisService = analysisService;
-    }
+    private final ModelMapper modelMapper;
 
     @Operation(
             summary = "Analyze a GitHub repository using an AI model",

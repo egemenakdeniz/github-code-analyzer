@@ -6,18 +6,19 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.example.githubfiles.model.Repository;
 import org.example.githubfiles.repository.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.example.githubfiles.dto.*;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.List;
-
 import org.springframework.http.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,14 +26,13 @@ import java.nio.file.Files;
 @Tag(name = "Report Controller", description = "Endpoints for listing and opening generated analysis reports")
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/reports")
 public class ReportController {
 
-    @Autowired
-    private RepositoryRepository repositoryRepository;
+    private final RepositoryRepository repositoryRepository;
 
-    @Autowired
-    private ReportRepository reportRepository;
+    private final ReportRepository reportRepository;
 
 
     @Operation(
@@ -52,19 +52,28 @@ public class ReportController {
             @Parameter(description = "Repository name", example = "github-code-analyzer") @RequestParam String repo,
             @Parameter(description = "Branch name", example = "main") @RequestParam String branch
     ) {
-        Optional<Repository> repoOpt = repositoryRepository.findByUserNameAndRepoNameAndBranchName(owner, repo, branch);
-        if (repoOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Repository not found");
-        }
+        return reportRepository.findReportPreviewRaw(owner, repo, branch).stream()
+                .map(row -> {
+                    Long reportId = ((Number) row[0]).longValue(); // ID
+                    String modelName = (String) row[1];             // model_name
+                    LocalDateTime generatedAt;
 
-        Repository repository = repoOpt.get();
+                    if (row[2] instanceof java.sql.Timestamp ts) {
+                        generatedAt = ts.toLocalDateTime();
+                    } else if (row[2] instanceof java.time.Instant instant) {
+                        generatedAt = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                    } else if (row[2] instanceof java.time.LocalDateTime ldt) {
+                        generatedAt = ldt;
+                    } else {
+                        throw new IllegalArgumentException("Unexpected datetime type: " + row[2].getClass());
+                    }
 
-        return reportRepository.findBySession_Repository(repository).stream()
-                .map(r -> new ReportPreviewDto(
-                        r.getSession().getModel_name(),
-                        r.getCreated_at(),
-                        r.getPath()
-                ))
+                    return ReportPreviewDto.builder()
+                            .reportId(reportId)
+                            .modelName(modelName)
+                            .generatedAt(generatedAt)
+                            .build();
+                })
                 .toList();
     }
 
@@ -84,23 +93,20 @@ public class ReportController {
     )
     @GetMapping("/open-pdf")
     public ResponseEntity<byte[]> openPdf(
-            @Parameter(description = "Absolute file path of the PDF", example = "/Users/egemen/Desktop/report-42.pdf")
-            @RequestParam String path) {
-        try {
-            File file = new File(path);
-            if (!file.exists()) {
-                return ResponseEntity.notFound().build();
-            }
+            @Parameter(description = "Report ID", example = "1") @RequestParam Long reportId) {
 
-            byte[] content = Files.readAllBytes(file.toPath());
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDisposition(ContentDisposition.inline().filename(file.getName()).build());
+        byte[] content = reportRepository.findFileDataById(reportId);
 
-            return new ResponseEntity<>(content, headers, HttpStatus.OK);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        if (content == null) {
+            return ResponseEntity.notFound().build();
         }
-    }
 
+        System.out.println("Çalışıyor");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.inline().filename("report-" + reportId + ".pdf").build());
+
+        return new ResponseEntity<>(content, headers, HttpStatus.OK);
+    }
 }

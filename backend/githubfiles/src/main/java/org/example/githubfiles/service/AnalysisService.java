@@ -1,85 +1,30 @@
 package org.example.githubfiles.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.githubfiles.dto.AnalyzeRequestDto;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.githubfiles.repository.*;
 import org.example.githubfiles.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class AnalysisService {
 
-    @Autowired
-    private ReportRepository reportRepository;
-    @Autowired
-    private ResultRepository resultRepository;
-    @Autowired
-    private SessionRepository sessionRepository;
-    @Autowired
-    private RepositoryRepository repositoryRepository;
-    @Autowired
-    private FileRepository fileRepository;
-    @Autowired
-    private OllamaService ollamaService;
-    @Autowired
-    private PdfReportService pdfReportService;
-    @Autowired
-    private GPTService gptService;
+    private final ReportRepository reportRepository;
+    private final ResultRepository resultRepository;
+    private final SessionRepository sessionRepository;
+    private final RepositoryRepository repositoryRepository;
+    private final FileRepository fileRepository;
+    private final PdfReportService pdfReportService;
 
-    public String analyzeRepository(String owner, String repoName, String branch,String modelName) {
-        Optional<Repository> repositoryOpt = repositoryRepository.findByUserNameAndRepoNameAndBranchName(owner, repoName, branch);
-        if (repositoryOpt.isEmpty()) {
-            throw new RuntimeException("Repository not found.");
-        }
-
-        Repository repository = repositoryOpt.get();
-
-        List<File> files = fileRepository.findByRepositoryIdAndIsActiveTrue(repository.getId());
-
-        StringBuilder promptBuilder=getPrompt(files);
-        System.out.println(promptBuilder.toString());
-        Session session = saveSession(repository,modelName,promptBuilder.toString());
-        String raw="";
-        String fullText="";
-        //System.out.println(modelName);
-        if (modelName.equals("ollama")) {
-            raw = ollamaService.analyzeWithModel(promptBuilder.toString());
-            fullText= modelMessageConverter(raw);
-        }
-        else if (modelName.equals("gpt")) {
-            raw =gptService.analyzeWithModel(promptBuilder.toString());
-            fullText = raw;
-        }
-
-        //System.out.println("Model cevabı: \n" + fullText);
-
-        List<Result> results = parseResults(fullText,session);
-        //System.out.println(a.size());
-        resultRepository.saveAll(results);
-
-        try {
-            String pdfPath = pdfReportService.generateReportPdf(repository, session, results);
-            if (pdfPath != null) {
-                Report report = new Report();
-                report.setSession(session);
-                report.setPath(pdfPath);
-                report.setCreated_at(LocalDateTime.now());
-                reportRepository.save(report);
-            }
-        } catch (Exception e) {
-            System.err.println("PDF oluşturulamadı: " + e.getMessage());
-        }
-        return fullText;
-    }
+    private final AiService aiService;
 
     public String analyzeRepository(Repository repositoryInfo, String modelName) {
         Optional<Repository> repositoryOpt = repositoryRepository.findByUserNameAndRepoNameAndBranchName(
@@ -88,55 +33,110 @@ public class AnalysisService {
                 repositoryInfo.getBranchName()
         );
 
-
-
         Repository repository = repositoryOpt.get();
-
         List<File> files = fileRepository.findByRepositoryIdAndIsActiveTrue(repository.getId());
 
-        StringBuilder promptBuilder = getPrompt(files);
-        System.out.println(promptBuilder.toString());
-
-        Session session = saveSession(repository, modelName, promptBuilder.toString());
-
-        String raw = "";
-        String fullText = "";
-
+        String result="";
         if (modelName.equalsIgnoreCase("ollama")) {
-            raw = ollamaService.analyzeWithModel(promptBuilder.toString().replace("\t", "    "));
-            fullText = modelMessageConverter(raw);
-        } else if (modelName.equalsIgnoreCase("gpt")) {
-            raw = gptService.analyzeWithModel(promptBuilder.toString().replace("\t", "    "));
-            fullText = raw;
-        } else {
-            throw new IllegalArgumentException("Unsupported model: " + modelName);
+            for (File file : files) {
+                StringBuilder prmt= getPromtStart();
+                prmt.append("filename=\"").append(file.getPath()).append("\"\n");
+                prmt.append("content:\n");
+                prmt.append(file.getContent()).append("\n");
+
+                log.info(file.getPath());
+                String modelResult = aiService.ask("ollama",prmt.toString().replace("\t", "    "));
+                log.info(modelResult);
+                result = result + modelResult;
+            }
         }
 
-        List<Result> results = parseResults(fullText.trim(), session);
+        else if (modelName.equalsIgnoreCase("gpt")) {
+            for (File file : files) {
+                StringBuilder prmt= getPromtStart();
+                prmt.append("filename=\"").append(file.getPath()).append("\"\n");
+                prmt.append("content:\n");
+                prmt.append(file.getContent()).append("\n");
+
+                log.debug(file.getPath());
+                String modelResult = aiService.ask("openai",prmt.toString().replace("\t", "    "));
+                log.debug(modelResult);
+                result = result + modelResult;
+            }
+        }else {
+            //Bilinmeyen model hatası fırlat
+        }
+        Session session = saveSession(repository, modelName, getPromtStart().toString());
+
+        List<Result> results = parseResults(result.trim(), session);
         resultRepository.saveAll(results);
 
         try {
-            String pdfPath = pdfReportService.generateReportPdf2(repository, session, results);
-            if (pdfPath != null) {
+            byte[] pdf = pdfReportService.generateReportPdfBytes(repository, results);
+            log.debug("PDF length: " + pdf.length);
+
+            if (pdf != null) {
+                /*
                 Report report = new Report();
                 report.setSession(session);
-                report.setPath(pdfPath);
+                report.setPath("anything");
                 report.setCreated_at(LocalDateTime.now());
-                reportRepository.save(report);
+                report.setFileData(pdf);
+                */
+                reportRepository.insertReport(LocalDateTime.now(),
+                        pdf,
+                       session.getId());
             }
         } catch (Exception e) {
-            System.err.println("PDF oluşturulamadı: " + e.getMessage());
+                //pdf oluşturulamadı fırlat
         }
+        return "SONUC: "+result;
+    }
 
-        return fullText;
+    private StringBuilder getPromtStart(){
+        StringBuilder promptBuilder = new StringBuilder();
+        promptBuilder.append("You will be given a single source code file from a software project.\n" +
+                "\n" +
+                "Your job is NOT to complete, rewrite, or explain the code.  \n" +
+                "Your ONLY task is to identify and list potential issues found in the file.  \n" +
+                "You MUST use the following strict format for every issue:\n" +
+                "\n" +
+                "FORMAT:\n" +
+                "FILE: <file path>  \n" +
+                "CLASS: <class name or \"N/A\">  \n" +
+                "SEVERITY: TRIVIAL | MID | CRITICAL  \n" +
+                "ISSUE: <brief description of the problem>  \n" +
+                "SUGGESTION: <how to fix or improve the issue>\n" +
+                "\n" +
+                "If the file contains multiple issues, repeat the FILE block for each issue.\n" +
+                "\n" +
+                "Do NOT include any explanations, summaries, extra formatting (like bullet points), or markdown.  \n" +
+                "Do NOT output anything outside this format.\n" +
+                "\n" +
+                "Example output:\n" +
+                "\n" +
+                "FILE: backend/githubfiles/src/main/java/org/example/githubfiles/model/Report.java  \n" +
+                "CLASS: UserController  \n" +
+                "SEVERITY: CRITICAL  \n" +
+                "ISSUE: User input is directly added to the SQL query, leading to SQL injection risk.  \n" +
+                "SUGGESTION: Use parameterized queries or prepared statements.\n" +
+                "\n" +
+                "FILE: C/DynamicMemory.c  \n" +
+                "CLASS: AuthService  \n" +
+                "SEVERITY: MID  \n" +
+                "ISSUE: Passwords are stored without encryption.  \n" +
+                "SUGGESTION: Use a secure hashing algorithm like bcrypt for storing passwords.\n" +
+                "\n" +
+                "---\n" +
+                "\n" +
+                "Now analyze the following file:");
+        return promptBuilder;
     }
 
     public List<Result> parseResults(String response, Session session) {
         List<Result> results = new ArrayList<>();
         Result current = null;
         String currentFileName = null;
-        System.out.println("response: " + response);
-        System.out.println("//");
         for (String line : response.split("\n")) {
             if (line.startsWith("FILE:")) {
                 current = new Result();
@@ -159,117 +159,6 @@ public class AnalysisService {
             }
         }
         return results;
-    }
-
-    String modelMessageConverter(String fullText) {
-        StringBuilder finalResponse = new StringBuilder();
-
-        String[] lines = fullText.split("\n");
-        for (String line : lines) {
-            if (!line.trim().isEmpty()) {
-                JSONObject obj = new JSONObject(line);
-                finalResponse.append(obj.getString("response"));
-            }
-        }
-        return finalResponse.toString();
-    }
-
-    StringBuilder getPrompt(List<File> files) {
-        StringBuilder promptBuilder = new StringBuilder();
-        ObjectMapper mapper = new ObjectMapper();
-
-        promptBuilder.append("You will be given multiple source code files from a software project.\n" +
-                "\n" +
-                "Your job is NOT to complete, rewrite, or explain the code.  \n" +
-                "Your ONLY task is to identify and list potential issues found in each file.  \n" +
-                "You MUST use the following strict format for every issue:\n" +
-                "\n" +
-                "FORMAT:\n" +
-                "FILE: <all file path>  \n" +
-                "CLASS: <class name or \"N/A\">  \n" +
-                "SEVERITY: TRIVIAL | MID | CRITICAL \n" +
-                "ISSUE: <brief description of the problem>  \n" +
-                "SUGGESTION: <how to fix or improve the issue>\n" +
-                "\n" +
-                "If a file contains multiple issues, repeat the FILE block for each issue.\n" +
-                "\n" +
-                "Do NOT include any explanations, summaries, extra formatting (like bullet points), or markdown.  \n" +
-                "Do NOT output anything outside this format.\n" +
-                "\n" +
-                "Example output:\n" +
-                "\n" +
-                "FILE: backend/githubfiles/src/main/java/org/example/githubfiles/model/Report.java  \n" +
-                "CLASS: UserController  \n" +
-                "SEVERITY: CRITICAL  \n" +
-                "ISSUE: User input is directly added to the SQL query, leading to SQL injection risk.  \n" +
-                "SUGGESTION: Use parameterized queries or prepared statements.\n" +
-                "\n" +
-                "FILE: C/DynamicMemory.c  \n" +
-                "CLASS: AuthService  \n" +
-                "SEVERITY: MID  \n" +
-                "ISSUE: Passwords are stored without encryption.  \n" +
-                "SUGGESTION: Use a secure hashing algorithm like bcrypt for storing passwords.\n" +
-                "\n" +
-                "---\n" +
-                "\n" +
-                "Now analyze the following files:\n");
-
-        for (File file : files) {
-
-            //System.out.println(file.getPath()+" "+file.getContent());
-            //String escaped = file.getContent().replace("\\", "\\\\")
-            //        .replace("\"", "\\\"")
-            //        .replace("\n", "\\n")
-            //        .replace("\t", "\\t");
-            //System.out.println("AFTER: " + escaped);
-
-            //String c = file.getContent();
-            //System.out.println("HAS REAL \\n: " + c.contains("\n"));         // gerçek newline
-            //System.out.println("HAS LITERAL \\n: " + c.contains("\\n"));     // karakter olarak \ ve n
-
-            //String content = file.getContent();
-            //System.out.println("CONTENT LENGTH: " + content.length());
-
-
-            //System.out.println("First 500 characters of escaped:");
-            //System.out.println(escaped.substring(0, Math.min(1100, escaped.length())));
-
-            //System.out.println("ESCAPED LENGTH: " + escaped.length());
-            //System.out.println("ESCAPED \\n count: " + escaped.split("\\\\n").length);
-            //System.out.println("SNIPPET:");
-            //System.out.println(escaped.replace("\\n", "\\n↵"));
-            //System.out.println(escaped.substring(500, 800)); // bunu bastır, "package" çıkacak
-
-            promptBuilder.append("--\n");
-            promptBuilder.append("### FILE START ###\n");
-            promptBuilder.append("filename=\"").append(file.getPath()).append("\"\n");
-            promptBuilder.append("content:\n");
-
-            promptBuilder.append(file.getContent()).append("\n");
-            //promptBuilder.append("content=\"").append(file.getContent().replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\t", "\\t")).append("\"\n");
-            promptBuilder.append("### FILE END ###\n");
-        }
-        promptBuilder.append("\nIMPORTANT: DO NOT generate or continue the code below. Just analyze it.");
-        promptBuilder.append("IMPORTANT: If you respond with anything other than the specified format (FILE, CLASS, SEVERITY...), your response will be rejected. DO NOT EXPLAIN or SUMMARIZE ANYTHING. ONLY list issues in the format.\n");
-        promptBuilder.append("STRICT FORMAT (use EXACTLY this, nothing more):\n");
-        promptBuilder.append("FILE: <file path>\n");
-        promptBuilder.append("CLASS: <class name or \"N/A\">\n");
-        promptBuilder.append("SEVERITY: TRIVIAL | MID | CRITICAL\n");
-        promptBuilder.append("ISSUE: <what is wrong>\n");
-        promptBuilder.append("SUGGESTION: <how to fix it>\n\n");
-
-        promptBuilder.append("Repeat this block for every issue. Do NOT use summaries, comments, markdown, or bullets.\n");
-        return promptBuilder;
-    }
-
-    private String cleanContent(String raw) {
-        return raw
-                .replace("\\", "\\\\")        // ters eğik çizgi
-                .replace("\"", "\\\"")        // çift tırnak
-                .replace("\t", "    ")        // tab boşluk
-                .replace("\r", "")            // carriage return
-                .replace("\n", "\\n")         // newline -> düz metin
-                .replaceAll("[^\\x20-\\x7E]", ""); // ASCII dışı karakterleri temizle
     }
 
     Session saveSession(Repository repo,String modelName,String prompt) {

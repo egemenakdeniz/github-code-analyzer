@@ -1,19 +1,25 @@
 package org.example.githubfiles.dto;
-
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Schema(description = "DTO for triggering analysis on a specific GitHub repository using an AI model")
-public class AnalyzeRequestDto extends RepositoryImportDto {
+public class AnalyzeRequestDto{
 
-    public String getModelName() {
-        return modelName;
-    }
+    @Schema(description = "GitHub username ", example = "egemenakdeniz")
+    @NotBlank
+    private String userName;
 
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
+    @Schema(description = "GitHub repository name ", example = "github-code-analyzer")
+    @NotBlank
+    private String repoName;
+
+    @Schema(description = "GitHub branch name ", example = "main")
+    @NotBlank
+    private String branchName;
 
     @Schema(description = "Name of the AI model to use for code analysis", example = "gpt-4")
     @NotBlank

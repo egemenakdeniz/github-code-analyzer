@@ -1,6 +1,9 @@
 package org.example.githubfiles.service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.example.githubfiles.exception.EmptyFileListException;
+import org.example.githubfiles.exception.InvalidRepositoryMetadataException;
 import org.example.githubfiles.model.File;
 import org.example.githubfiles.model.Repository;
 import org.example.githubfiles.repository.FileRepository;
@@ -10,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class FileService {
 
@@ -17,14 +21,9 @@ public class FileService {
     private final GithubService githubService;
     private final RepositoryRepository repositoryRepository;
 
-
-    public FileService(FileRepository fileRepository,GithubService githubService,RepositoryRepository repositoryRepository) {
-        this.fileRepository = fileRepository;
-        this.githubService = githubService;
-        this.repositoryRepository = repositoryRepository;
-    }
-
     public void saveFilesWithRepository(List<File> files, Repository repository) {
+        if (files == null || files.isEmpty()) throw new EmptyFileListException("Cannot save empty or null file list.");
+        if (repository == null) throw new InvalidRepositoryMetadataException("Repository cannot be null when saving files.");;
         for (File file : files) {
             file.setRepository(repository);
             fileRepository.save(file);
@@ -36,7 +35,7 @@ public class FileService {
         List<Repository> allRepos = repositoryRepository.findAll();
 
         for (Repository repo : allRepos) {
-            if (!repo.getUpToDate()) continue;
+            if (Boolean.FALSE.equals(repo.getUpToDate())) continue;
 
             List<File> currentFiles = fileRepository.findByRepositoryIdAndIsActiveTrue(repo.getId());
             List<File> latestFiles = githubService.fetchFilesFromRepo(
@@ -49,6 +48,9 @@ public class FileService {
     }
 
     private boolean hasChanged(List<File> currentFiles, List<File> latestFiles) {
+        if (currentFiles == null || currentFiles.isEmpty()) throw new EmptyFileListException("Current file list is empty or null. Cannot perform comparison.");
+        if (latestFiles == null || latestFiles.isEmpty()) throw new EmptyFileListException("Latest file list is empty or null. Cannot perform comparison.");
+
         Map<String, String> currentMap = currentFiles.stream().collect(Collectors.toMap(File::getPath, File::getHash));
         Map<String, String> latestMap = latestFiles.stream().collect(Collectors.toMap(File::getPath, File::getHash));
 

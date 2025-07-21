@@ -6,51 +6,42 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.example.githubfiles.dto.*;
 import org.example.githubfiles.repository.RepositoryRepository;
 import org.example.githubfiles.repository.SessionRepository;
 import org.example.githubfiles.model.*;
 import org.example.githubfiles.service.RepositoryService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.example.githubfiles.service.FileService;
 import org.example.githubfiles.service.GithubService;
 import org.example.githubfiles.repository.FileRepository;
 import jakarta.validation.Valid;
-import org.example.githubfiles.config.*;
 
 import java.util.*;
 
 @Tag(name = "Repository Controller", description = "Endpoints for importing, updating, and checking GitHub repositories")
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/repositories")
 public class RepositoryController {
 
 
     private final RepositoryService repositoryService;
+    private final ModelMapper modelMapper;
+    private final RepositoryRepository repositoryRepository;
+    private final SessionRepository sessionRepository;
+    private final FileService fileService;
+    private final GithubService githubService;
+    private final FileRepository fileRepository;
+    private final EntityManager entityManager;
 
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private RepositoryRepository repositoryRepository;
-    @Autowired
-    private SessionRepository sessionRepository;
-    @Autowired
-    private FileService fileService;
-    @Autowired
-    private GithubService githubService;
-    @Autowired
-    private FileRepository fileRepository;
-    @Autowired
-    private EntityManager entityManager;
-
-    public RepositoryController(RepositoryService repositoryService) {
-        this.repositoryService = repositoryService;
-    }
+    //public RepositoryController(RepositoryService repositoryService) {
+    //    this.repositoryService = repositoryService;
+    //}
 
     @Operation(
             summary = "Import a repository",

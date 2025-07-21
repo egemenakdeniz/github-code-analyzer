@@ -1,12 +1,17 @@
 package org.example.githubfiles.model;
 
 import jakarta.persistence.*;
-
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
+@NoArgsConstructor
+@Getter @Setter
 @Entity
 @Table(name = "reports")
 public class Report {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -15,27 +20,18 @@ public class Report {
     @JoinColumn(name = "analysis_session_id",nullable = false)
     private Session session;
 
-    @Column(nullable = false,name = "generated_at")
+    @Column(nullable = false,name = "generated_at",columnDefinition = "timestamp without time zone")
     private LocalDateTime created_at;
 
-    @Column(nullable = false,name = "file_path")
-    private String path;
+    public byte[] getFileData() {
+        return fileData;
+    }
 
-    public Long getId() {return id;}
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
+    @Column(name = "file_data", nullable = false, columnDefinition = "BYTEA") // PostgreSQL için , columnDefinition = "bytea"
+    private byte[] fileData;
 
-    public void setId(Long id) {this.id = id;}
 
-    public String getPath() {return path;}
 
-    public void setPath(String path) {this.path = path;}
-
-    public LocalDateTime getCreated_at() {return created_at;}
-
-    public void setCreated_at(LocalDateTime created_at) {this.created_at = created_at;}
-
-    public Session getSession() {return session;}
-
-    public void setSession(Session session) {this.session = session;}
-
-    public Report() {}
 }
