@@ -33,9 +33,9 @@ public class RepositoryService {
         repository.setCreatedAt(LocalDate.now());
         repository.setUpToDate(true);
 
-        Repository savedRepo = repositoryRepository.save(repository);
-
         List<File> fetchedFiles = githubService.fetchFilesFromRepo(repository);
+
+        Repository savedRepo = repositoryRepository.save(repository);
         fileService.saveFilesWithRepository(fetchedFiles, savedRepo);
     }
 }

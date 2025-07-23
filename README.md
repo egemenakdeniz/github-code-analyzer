@@ -9,8 +9,6 @@ Spring Boot + React kullanılarak geliştirilmiş bir statik kod analiz uygulama
 ```
 Github/
 ├── backend/             # Spring Boot uygulaması
-│   ├── db/
-│   │   └── schema.sql   # PostgreSQL tablo yapısı (veri içermez)
 │   └── githubfiles/     # Ana Java backend kodları
 ├── frontend/            # React + Vite tabanlı kullanıcı arayüzü
 ```
@@ -22,23 +20,43 @@ Github/
 ### 📁 Modüller
 
 - `githubfiles`: Ana Spring Boot uygulaması
-- `db/schema.sql`: PostgreSQL tablo şeması (veri içermez)
 
-### 💾 PostgreSQL Ayarları
+### 
 
 `application.properties` örneği:
 
-```
+```properties
+spring.application.name=githubfiles
+
+# Database
 spring.datasource.url=jdbc:postgresql://localhost:5432/code_analyzer_db
-spring.datasource.username=postgres
-spring.datasource.password=***
-```
-
-Güvenli ortam değişkeni kullanımı önerilir:
-
-```
+spring.datasource.username=${DB_USERNAME}
 spring.datasource.password=${DB_PASSWORD}
-```
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+
+# AI varsayılan sağlayıcı ve model
+ai.default.provider=ollama
+ai.default.model=gemma3:4b
+
+# OpenAI Ayarları
+spring.ai.openai.api-key=${OPENAI_API_KEY}
+#spring.ai.openai.chat.model=gpt-4o
+spring.ai.openai.chat.temperature=0.2
+spring.ai.openai.chat.top-p=1.0
+spring.ai.openai.chat.timeout=60s
+
+# Ollama Ayarları
+spring.ai.ollama.base-url=http://localhost:11434
+#spring.ai.ollama.chat.options.model=gemma3:4b
+spring.ai.ollama.chat.options.temperature=0.2
+spring.ai.ollama.chat.options.top-p=1.0
+spring.ai.ollama.chat.timeout=60s
+
+# JWT
+jwt.secret=${JWT_SECRET}
 
 ### 🧠 Yapay Zeka Desteği
 
@@ -62,16 +80,6 @@ npm run dev
 
 ---
 
-## 🛠 Veritabanı Şeması
-
-Veritabanı şemasını oluşturmak için:
-
-```bash
-psql -U postgres -d code_analyzer_db -f backend/db/schema.sql
-```
-
----
-
 ## 🚀 Projeyi Çalıştırma
 
 ### Backend:
@@ -89,3 +97,19 @@ npm run dev
 ```
 
 ---
+
+## 🔐 Login Akışı
+
+![Login Flow](images/login_diagram.png)
+
+---
+
+## 🔁 Access Token Yenileme Akışı
+
+![Access Token Refresh](images/access_token_refresh_diagram.png)
+
+---
+
+## 📊 Analyze API İşleyişi
+
+![Analyze Sequence](images/analyze_diagramm.png)

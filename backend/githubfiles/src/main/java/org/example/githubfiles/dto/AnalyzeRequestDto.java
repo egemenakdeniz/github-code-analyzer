@@ -21,7 +21,9 @@ public class AnalyzeRequestDto{
     @NotBlank
     private String branchName;
 
+    @Schema(description = "AI provider to use (e.g., openai, ollama)", example = "openai")
+    private String providerName;
+
     @Schema(description = "Name of the AI model to use for code analysis", example = "gpt-4")
-    @NotBlank
     private String modelName;
 }

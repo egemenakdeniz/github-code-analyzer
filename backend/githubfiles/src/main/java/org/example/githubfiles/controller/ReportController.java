@@ -9,22 +9,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.example.githubfiles.model.Repository;
 import org.example.githubfiles.repository.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.example.githubfiles.dto.*;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Optional;
 import java.util.List;
 import org.springframework.http.*;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+
 
 @Tag(name = "Report Controller", description = "Endpoints for listing and opening generated analysis reports")
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/reports")

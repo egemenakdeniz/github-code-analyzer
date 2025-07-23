@@ -19,11 +19,9 @@ import org.example.githubfiles.service.FileService;
 import org.example.githubfiles.service.GithubService;
 import org.example.githubfiles.repository.FileRepository;
 import jakarta.validation.Valid;
-
 import java.util.*;
 
 @Tag(name = "Repository Controller", description = "Endpoints for importing, updating, and checking GitHub repositories")
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/repositories")

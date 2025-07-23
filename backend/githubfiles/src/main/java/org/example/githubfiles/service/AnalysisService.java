@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.githubfiles.repository.*;
 import org.example.githubfiles.model.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 import java.time.LocalDateTime;
@@ -17,6 +18,9 @@ import java.util.Optional;
 @Service
 public class AnalysisService {
 
+    @Value("${ai.default.model}")
+    private String defaultModel;
+
     private final ReportRepository reportRepository;
     private final ResultRepository resultRepository;
     private final SessionRepository sessionRepository;
@@ -26,18 +30,19 @@ public class AnalysisService {
 
     private final AiService aiService;
 
-    public String analyzeRepository(Repository repositoryInfo, String modelName) {
+    public void analyzeRepository(Repository repositoryInfo, String providerName,String modelName) {
         Optional<Repository> repositoryOpt = repositoryRepository.findByUserNameAndRepoNameAndBranchName(
                 repositoryInfo.getUserName(),
                 repositoryInfo.getRepoName(),
                 repositoryInfo.getBranchName()
         );
-
+        log.info("Gelen provider: {}", providerName);
+        log.info("Gelen model: {}", modelName);
         Repository repository = repositoryOpt.get();
         List<File> files = fileRepository.findByRepositoryIdAndIsActiveTrue(repository.getId());
 
         String result="";
-        if (modelName.equalsIgnoreCase("ollama")) {
+        if ("ollama".equalsIgnoreCase(providerName)) {
             for (File file : files) {
                 StringBuilder prmt= getPromtStart();
                 prmt.append("filename=\"").append(file.getPath()).append("\"\n");
@@ -45,13 +50,14 @@ public class AnalysisService {
                 prmt.append(file.getContent()).append("\n");
 
                 log.info(file.getPath());
-                String modelResult = aiService.ask("ollama",prmt.toString().replace("\t", "    "));
+                log.info("Model Name : "+modelName);
+                String modelResult = aiService.ask("ollama",modelName,prmt.toString().replace("\t", "    "));
                 log.info(modelResult);
                 result = result + modelResult;
             }
         }
 
-        else if (modelName.equalsIgnoreCase("gpt")) {
+        else if ("openai".equalsIgnoreCase(providerName)) {
             for (File file : files) {
                 StringBuilder prmt= getPromtStart();
                 prmt.append("filename=\"").append(file.getPath()).append("\"\n");
@@ -59,13 +65,25 @@ public class AnalysisService {
                 prmt.append(file.getContent()).append("\n");
 
                 log.debug(file.getPath());
-                String modelResult = aiService.ask("openai",prmt.toString().replace("\t", "    "));
+                String modelResult = aiService.ask("openai",modelName,prmt.toString().replace("\t", "    "));
                 log.debug(modelResult);
                 result = result + modelResult;
             }
         }else {
-            //Bilinmeyen model hatası fırlat
+            for (File file : files) {
+                StringBuilder prmt= getPromtStart();
+
+                prmt.append("filename=\"").append(file.getPath()).append("\"\n");
+                prmt.append("content:\n");
+                prmt.append(file.getContent()).append("\n");
+
+                log.debug(file.getPath());
+                String modelResult = aiService.ask(null,modelName,prmt.toString().replace("\t", "    "));
+                log.debug(modelResult);
+                result = result + modelResult;
+            }
         }
+        if(modelName==null){modelName=defaultModel;}
         Session session = saveSession(repository, modelName, getPromtStart().toString());
 
         List<Result> results = parseResults(result.trim(), session);
@@ -76,13 +94,6 @@ public class AnalysisService {
             log.debug("PDF length: " + pdf.length);
 
             if (pdf != null) {
-                /*
-                Report report = new Report();
-                report.setSession(session);
-                report.setPath("anything");
-                report.setCreated_at(LocalDateTime.now());
-                report.setFileData(pdf);
-                */
                 reportRepository.insertReport(LocalDateTime.now(),
                         pdf,
                        session.getId());
@@ -90,7 +101,7 @@ public class AnalysisService {
         } catch (Exception e) {
                 //pdf oluşturulamadı fırlat
         }
-        return "SONUC: "+result;
+        //return "SONUC: "+result;
     }
 
     private StringBuilder getPromtStart(){
