@@ -6,8 +6,6 @@ import org.example.githubfiles.model.AppUser;
 import org.example.githubfiles.model.RefreshToken;
 import org.example.githubfiles.repository.RefreshTokenRepository;
 import org.springframework.stereotype.Service;
-
-import java.beans.Transient;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;

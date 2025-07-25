@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
-    //List<Report> findBySessionId(Long sessionId);
     List<Report> findBySession_Repository(Repository repository);
 
     @Modifying

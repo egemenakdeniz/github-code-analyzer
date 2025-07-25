@@ -7,7 +7,6 @@ import io.jsonwebtoken.security.Keys;
 import org.example.githubfiles.model.AppUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.time.Duration;
 import java.util.Date;

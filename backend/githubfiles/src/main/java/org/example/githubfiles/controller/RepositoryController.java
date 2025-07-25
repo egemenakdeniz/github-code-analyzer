@@ -37,10 +37,6 @@ public class RepositoryController {
     private final FileRepository fileRepository;
     private final EntityManager entityManager;
 
-    //public RepositoryController(RepositoryService repositoryService) {
-    //    this.repositoryService = repositoryService;
-    //}
-
     @Operation(
             summary = "Import a repository",
             description = "Imports a GitHub repository and its source files into the system",

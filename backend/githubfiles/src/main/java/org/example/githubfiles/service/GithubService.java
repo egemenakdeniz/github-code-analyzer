@@ -9,7 +9,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.json.*;
-
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 

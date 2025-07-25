@@ -10,11 +10,7 @@ import java.util.Optional;
 
 
 public interface RepositoryRepository extends JpaRepository<Repository, Long> {
-    //Repository findByUrl(String url);
     Optional<Repository> findByUserNameAndRepoNameAndBranchName(String userName, String repoName, String branchName);
-
-
-
 
     @Modifying
     @Transactional

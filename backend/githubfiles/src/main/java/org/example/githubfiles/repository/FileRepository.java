@@ -12,15 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 public interface FileRepository extends JpaRepository<File, Long> {
-    //File findByPath(String path);
-    //File findByHash(String hash);
-    //List<File> findByRepositoryId(Long repositoryId);
-    //Optional<File> findByPathAndRepository_Id(String path, Long repositoryId);
     List<File> findByRepositoryIdAndIsActiveTrue(Long repositoryId);
     Optional<File> findByPathAndRepository_IdAndIsActiveTrue(String path, Long repositoryId);
-
-    //@Query("SELECT f FROM File f WHERE f.id = :id AND f.isActive = true")
-    //List<File> findActiveById(@Param("id") Long id);
 
     @Transactional
     @Modifying

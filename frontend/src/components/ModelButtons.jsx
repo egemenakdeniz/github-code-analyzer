@@ -23,12 +23,12 @@ export default function ModelButtons({ selectedRepo, onAnalysisComplete }) {
     }
 
     const payload = {
-  userName: selectedRepo.username,
-  repoName: selectedRepo.repo,
-  branchName: selectedRepo.branch,
-  providerName: provider === "" ? null : provider,
-  modelName: model === "" ? null : model
-};
+      userName: selectedRepo.username,
+      repoName: selectedRepo.repo,
+      branchName: selectedRepo.branch,
+      providerName: provider || null,
+      modelName: model || null
+    };
 
     try {
       const res = await axiosInstance.post("/api/analyze", payload);

@@ -94,7 +94,7 @@ public class ReportController {
             return ResponseEntity.notFound().build();
         }
 
-        System.out.println("Çalışıyor");
+        //System.out.println("Çalışıyor");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
