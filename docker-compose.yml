@@ -1,0 +1,65 @@
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: code_analyzer_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - github
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - github
+    entrypoint: /bin/bash
+    command: -c "ollama serve & sleep 5 && ollama run gemma3:4b && tail -f /dev/null"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: springboot-app
+    restart: always
+    depends_on:
+      - postgres
+      - ollama
+    ports:
+      - "8080:8080"
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    networks:
+      - github
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: react-vite-app
+    restart: always
+    ports:
+      - "5173:5173"
+    networks:
+      - github
+
+volumes:
+  postgres_data:
+  ollama_models:
+
+networks:
+  github:

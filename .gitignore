@@ -1,0 +1,6 @@
+# Ortam dosyaları
+.env
+
+
+# Log dosyaları
+*.log

@@ -7,13 +7,23 @@ Spring Boot + React kullanılarak geliştirilmiş bir statik kod analiz uygulama
 ## 🧰 Kullanılan Teknolojiler
 
 ![Java](https://img.shields.io/badge/Java-17-blue?logo=java)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-success?logo=springboot)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql)
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
-![Vite](https://img.shields.io/badge/Vite-4.5-purple?logo=vite)
-![JWT](https://img.shields.io/badge/JWT-authentication-orange?logo=jsonwebtokens)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.7-success?logo=springboot)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue?logo=postgresql)
+![React](https://img.shields.io/badge/React-19.1.0-61DAFB?logo=react)
+![Vite](https://img.shields.io/badge/Vite-7.0.0-purple?logo=vite)
 ![OpenAI](https://img.shields.io/badge/OpenAI-GPT4-black?logo=openai)
 ![Ollama](https://img.shields.io/badge/Ollama-local--LLM-green?logo=data)
+![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)
+![Springdoc](https://img.shields.io/badge/Springdoc-OpenAPI-blue?logo=openapiinitiative)
+![Spring Security](https://img.shields.io/badge/Spring%20Security-JWT--based-green?logo=spring)
+![ModelMapper](https://img.shields.io/badge/ModelMapper-Entity--DTO-blue)
+![Spring Data JPA](https://img.shields.io/badge/Spring%20Data%20JPA-Hibernate-red?logo=hibernate)
+![Lombok](https://img.shields.io/badge/Lombok-Auto--Code-yellow?logo=lombok)
+![OpenPDF](https://img.shields.io/badge/OpenPDF-PDF--Reports-lightgrey)
+![Spring AI](https://img.shields.io/badge/Spring%20AI-OpenAI%2FOllama-blueviolet?logo=openai)
+![Global Exception Handler](https://img.shields.io/badge/Error%20Handling-Custom--Exceptions-critical)
+
+
 
 ---
 
@@ -97,18 +107,56 @@ npm run dev
 
 ## 🚀 Projeyi Çalıştırma
 
-### Backend:
+Uygulama Docker Compose ile tek komutla ayağa kaldırılabilir. PostgreSQL, Spring Boot (backend), Ollama ve React (frontend) container olarak başlatılır.
+
+---
+
+### 1. Ortam Değişkenlerini Ayarla
+
+📝 Proje kök dizininde aşağıdaki komutla `.env` dosyasını oluştur:
 
 ```bash
-cd backend/githubfiles
-./mvnw spring-boot:run
+cp .env.example .env
+
+✍️ Daha sonra .env dosyasındaki değişkenleri kendi bilgilerine göre doldur:
+
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+JWT_SECRET=your-secret-key
+OPENAI_API_KEY=your-openai-key
+GITHUB_TOKEN=your-github-token
 ```
 
-### Frontend:
+---
+
+### 2.🐳 Docker Compose ile Başlat:
+
+Projenin kök dizininde:
 
 ```bash
-cd frontend
-npm run dev
+docker-compose up --build
+```
+
+---
+
+### 3. Servislere Erişim
+
+| Servis         | URL                          |
+|----------------|------------------------------|
+| Backend API    | http://localhost:8080        |
+| Frontend UI    | http://localhost:5173        |
+| Ollama (LLM)   | http://localhost:11434       |
+| PostgreSQL     | localhost:5432 (iç bağlantı) |
+
+---
+
+### 4. Temiz Başlatmak İstersen
+
+Her şeyi sıfırlayıp yeniden başlatmak için:
+
+```bash
+docker-compose down -v
+docker-compose up --build
 ```
 ---
 
