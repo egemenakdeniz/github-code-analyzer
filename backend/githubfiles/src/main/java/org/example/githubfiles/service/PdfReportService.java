@@ -1,8 +1,8 @@
 package org.example.githubfiles.service;
 
-import org.example.githubfiles.exception.PdfDocumentCreationException;
-import org.example.githubfiles.exception.PdfEmptyResultException;
-import org.example.githubfiles.exception.PdfFontLoadException;
+import org.example.githubfiles.exception.internal.PdfDocumentCreationException;
+import org.example.githubfiles.exception.badgateway.PdfEmptyResultException;
+import org.example.githubfiles.exception.internal.PdfFontLoadException;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;

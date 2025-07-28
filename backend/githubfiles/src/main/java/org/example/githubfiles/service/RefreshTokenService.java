@@ -18,6 +18,7 @@ public class RefreshTokenService {
 
     @Transactional
     public RefreshToken createRefreshToken(AppUser user) {
+
         tokenRepository.deleteByUser(user);
 
         RefreshToken token = RefreshToken.builder()
@@ -29,9 +30,7 @@ public class RefreshTokenService {
         return tokenRepository.save(token);
     }
 
-    public boolean isValid(RefreshToken token) {
-        return token.getExpiryDate().isAfter(LocalDateTime.now());
-    }
+    public boolean isValid(RefreshToken token) {return token != null && token.getExpiryDate() != null && token.getExpiryDate().isAfter(LocalDateTime.now());}
 
     @Transactional
     public void deleteByToken(String token) {

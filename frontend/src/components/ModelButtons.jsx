@@ -41,7 +41,11 @@ export default function ModelButtons({ selectedRepo, onAnalysisComplete }) {
       }
     } catch (error) {
       console.error("İstek hatası:", error);
-      alert("İstek gönderilirken bir hata oluştu.");
+      const message =
+      error.response?.data?.message || // backend hatası varsa
+      error.message ||                 // axios genel hata mesajı
+      "İstek gönderilirken bir hata oluştu.";
+      alert(message);
     }
   };
 

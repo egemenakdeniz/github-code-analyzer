@@ -1,14 +1,27 @@
 package org.example.githubfiles.service;
 
-import org.example.githubfiles.exception.*;
+import org.example.githubfiles.exception.badgateway.*;
+import org.example.githubfiles.exception.badrequest.InvalidRepositoryMetadataException;
+import org.example.githubfiles.exception.internal.GithubTokenMissingException;
+import org.example.githubfiles.exception.notfound.FileNotFoundOnGithubException;
+import org.example.githubfiles.exception.notfound.RepositoryNotFoundException;
+import org.example.githubfiles.exception.toomanyrequests.GithubApiRateLimitExceededException;
+import org.example.githubfiles.exception.unauthorized.GithubAuthenticationException;
+import org.example.githubfiles.exception.unavailable.NetworkUnavailableException;
 import org.example.githubfiles.model.File;
 import org.example.githubfiles.model.Repository;
+import org.example.githubfiles.utils.NetworkUtils;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.json.*;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -27,6 +40,9 @@ public class GithubService {
 
     public List<File> fetchFilesFromRepo(Repository repository) {
 
+        if (!NetworkUtils.isInternetAvailable()) {
+            throw new NetworkUnavailableException("The server is not connected to the internet. Please check your network connection.");
+        }
         if (token == null || token.isBlank()) {
             throw new GithubTokenMissingException("GitHub token is not set in environment variables");
         }
@@ -66,7 +82,6 @@ public class GithubService {
                     String sha = item.getString("sha");
 
                     if (!isCodeFile(path)) {continue;}
-                    //System.out.println(sha);
                     try {
                         String content = fetchFileContent(repository.getUserName(), repository.getRepoName(),path, repository.getBranchName());
 

@@ -30,7 +30,7 @@ export default function RepoForm({ onRepoAdded }) {
       onRepoAdded?.();
     } catch (err) {
       console.error('Repo ekleme hatası:', err);
-      setError('Hata: ' + (err.response?.data || err.message));
+      setError('Hata: ' + (err.response?.data.message || err.message));
     }
   };
 

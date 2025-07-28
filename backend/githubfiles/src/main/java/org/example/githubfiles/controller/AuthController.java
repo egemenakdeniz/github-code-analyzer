@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.githubfiles.exception.notfound.UserNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.example.githubfiles.dto.AuthRequestDto;
 import org.example.githubfiles.model.AppUser;
@@ -42,7 +43,7 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
         AppUser user = userService.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı"));
 
         String accessToken = jwtUtil.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);

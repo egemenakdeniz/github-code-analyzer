@@ -2,8 +2,9 @@ package org.example.githubfiles.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.githubfiles.exception.EmptyFileListException;
-import org.example.githubfiles.exception.InvalidRepositoryMetadataException;
+import lombok.extern.slf4j.Slf4j;
+import org.example.githubfiles.exception.badrequest.EmptyFileListException;
+import org.example.githubfiles.exception.badrequest.InvalidRepositoryMetadataException;
 import org.example.githubfiles.model.File;
 import org.example.githubfiles.model.Repository;
 import org.example.githubfiles.repository.FileRepository;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class FileService {
@@ -57,8 +59,8 @@ public class FileService {
         if (currentMap.size() != latestMap.size()) return true;
 
         for (Map.Entry<String, String> entry : latestMap.entrySet()) {
-            System.out.println("Current hash: " + currentMap.get(entry.getKey()));
-            System.out.println("Latest hash: " + latestMap.get(entry.getKey()));
+            log.debug("Current hash: {}", currentMap.get(entry.getKey()));
+            log.debug("Latest hash: {}" , latestMap.get(entry.getKey()));
             if (!currentMap.containsKey(entry.getKey()) || !entry.getValue().equals(currentMap.get(entry.getKey()))) {
                 return true;
             }

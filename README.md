@@ -4,6 +4,21 @@ Spring Boot + React kullanılarak geliştirilmiş bir statik kod analiz uygulama
 
 ---
 
+## 🧰 Kullanılan Teknolojiler
+
+![Java](https://img.shields.io/badge/Java-17-blue?logo=java)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-success?logo=springboot)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
+![Vite](https://img.shields.io/badge/Vite-4.5-purple?logo=vite)
+![JWT](https://img.shields.io/badge/JWT-authentication-orange?logo=jsonwebtokens)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT4-black?logo=openai)
+![Ollama](https://img.shields.io/badge/Ollama-local--LLM-green?logo=data)
+
+---
+
+---
+
 ## 📁 Proje Yapısı
 
 ```
@@ -95,7 +110,6 @@ cd backend/githubfiles
 cd frontend
 npm run dev
 ```
-
 ---
 
 ## 🔐 Login Akışı
@@ -112,4 +126,30 @@ npm run dev
 
 ## 📊 Analyze API İşleyişi
 
-![Analyze Sequence](images/analyze_diagramm.png)
+![Analyze Flow](images/analyze_diagram.png)
+
+---
+
+## 📥 Repository Import Akışı
+
+![Import Repository](images/import_repository_diagram.png)
+
+---
+
+## 🔄 Repository Update Akışı
+
+![Update Repository](images/update_repository_diagram.png)
+
+---
+
+## 📦 Repository Değişiklik Kontrolü
+
+![Check Repo Changes](images/check_all_repositories_has_changed_diagram.png)
+
+---
+
+## 🔓 Logout Akışı
+
+![Logout Flow](images/logout_diagram.png)
+
+---

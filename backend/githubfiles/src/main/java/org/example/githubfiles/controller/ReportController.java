@@ -22,28 +22,25 @@ import org.springframework.http.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/reports")
 public class ReportController {
-
-    private final RepositoryRepository repositoryRepository;
-
     private final ReportRepository reportRepository;
-
 
     @Operation(
             summary = "List reports of a specific repository",
             description = "Returns a list of report previews for the given GitHub repository and branch",
+            parameters = {
+                    @io.swagger.v3.oas.annotations.Parameter(name = "owner", description = "GitHub username", example = "egemenakdeniz"),
+                    @io.swagger.v3.oas.annotations.Parameter(name = "repo", description = "Repository name", example = "github-code-analyzer"),
+                    @io.swagger.v3.oas.annotations.Parameter(name = "branch", description = "Branch name", example = "main")
+            },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReportPreviewDto.class))
-                    )
+                    @ApiResponse(responseCode = "200", description = "Success")
             }
     )
     @GetMapping("/of-repo")
     public List<ReportPreviewDto> getReportsByRepo(
-            @Parameter(description = "GitHub username", example = "egemenakdeniz") @RequestParam String owner,
-            @Parameter(description = "Repository name", example = "github-code-analyzer") @RequestParam String repo,
-            @Parameter(description = "Branch name", example = "main") @RequestParam String branch
+            @RequestParam String owner,
+            @RequestParam String repo,
+           @RequestParam String branch
     ) {
         return reportRepository.findReportPreviewRaw(owner, repo, branch).stream()
                 .map(row -> {
@@ -73,6 +70,13 @@ public class ReportController {
     @Operation(
             summary = "Open a generated PDF report",
             description = "Returns the binary content of a PDF file given its absolute path",
+            parameters = {
+                    @io.swagger.v3.oas.annotations.Parameter(
+                            name = "reportId",
+                            description = "Report ID",
+                            example = "1"
+                    )
+            },
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -86,7 +90,7 @@ public class ReportController {
     )
     @GetMapping("/open-pdf")
     public ResponseEntity<byte[]> openPdf(
-            @Parameter(description = "Report ID", example = "1") @RequestParam Long reportId) {
+            @RequestParam Long reportId) {
 
         byte[] content = reportRepository.findFileDataById(reportId);
 

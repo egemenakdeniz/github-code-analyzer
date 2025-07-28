@@ -1,8 +1,8 @@
 package org.example.githubfiles.service;
 
 import lombok.AllArgsConstructor;
-import org.example.githubfiles.exception.InvalidRepositoryMetadataException;
-import org.example.githubfiles.exception.RepositoryAlreadyExistException;
+import org.example.githubfiles.exception.badrequest.InvalidRepositoryMetadataException;
+import org.example.githubfiles.exception.conflict.RepositoryAlreadyExistException;
 import org.example.githubfiles.model.File;
 import org.example.githubfiles.model.Repository;
 import org.example.githubfiles.repository.RepositoryRepository;

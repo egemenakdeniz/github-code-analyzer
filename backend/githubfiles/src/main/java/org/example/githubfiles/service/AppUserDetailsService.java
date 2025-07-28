@@ -5,7 +5,7 @@ import org.example.githubfiles.model.AppUser;
 import org.example.githubfiles.repository.AppUserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.example.githubfiles.exception.notfound.UserNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.User;
 import java.util.Collections;
@@ -17,9 +17,9 @@ public class AppUserDetailsService implements UserDetailsService {
     private final AppUserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username)  {
         AppUser user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + username));
+                .orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı: " + username));
 
         return User.builder()
                 .username(user.getUsername())
