@@ -12,7 +12,6 @@ import org.example.githubfiles.dto.AnalyzeRequestDto;
 import org.example.githubfiles.dto.ApiResponseDto;
 import org.example.githubfiles.service.AnalysisService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.example.githubfiles.model.*;

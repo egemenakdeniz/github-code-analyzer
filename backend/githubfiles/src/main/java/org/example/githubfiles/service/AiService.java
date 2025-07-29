@@ -102,7 +102,8 @@ public class AiService {
             log.error("AI bağlantı kurulamadı", ex);
             throw new AiConnectionFailedException("Failed to connect to AI provider.");
 
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             log.error("AI çağrısı sırasında beklenmeyen bir hata oluştu", ex);
             throw new AiUnexpectedException("An unexpected error occurred while calling the AI model.");
         }

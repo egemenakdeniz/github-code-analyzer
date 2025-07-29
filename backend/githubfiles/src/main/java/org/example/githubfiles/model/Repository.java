@@ -34,5 +34,4 @@ public class Repository {
     @Column(name = "up_to_date", nullable = false)
     private Boolean upToDate = true;
 
-
 }

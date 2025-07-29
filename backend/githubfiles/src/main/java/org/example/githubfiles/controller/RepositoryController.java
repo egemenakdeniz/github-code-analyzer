@@ -131,9 +131,6 @@ public class RepositoryController {
         Repository dtoAsEntity = modelMapper.map(dto, Repository.class);
 
         Optional<Repository> repoOpt = repositoryRepository.findByUserNameAndRepoNameAndBranchName(dtoAsEntity.getUserName(), dtoAsEntity.getRepoName(), dtoAsEntity.getBranchName());
-        //if (repoOpt.isEmpty()) {
-        //    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Repository not found.");
-        //}
 
         Repository repository = repoOpt.get();
 

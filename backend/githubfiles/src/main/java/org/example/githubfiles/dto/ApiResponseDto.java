@@ -24,14 +24,6 @@ public class ApiResponseDto {
     @Schema(description = "Human-readable message describing the result of the operation", example = "Analysis completed successfully")
     private String message;
 
-/*
-    public ApiResponseDto(boolean success, int status, String message) {
-        this.timestamp = LocalDateTime.now();
-        this.status = status;
-        this.success = success;
-        this.message = message;
-    }
-*/
 
     public static ApiResponseDto success(String message) {
         return ApiResponseDto.builder()

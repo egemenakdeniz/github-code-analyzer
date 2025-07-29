@@ -22,7 +22,7 @@ Spring Boot + React kullanılarak geliştirilmiş bir statik kod analiz uygulama
 ![OpenPDF](https://img.shields.io/badge/OpenPDF-PDF--Reports-lightgrey)
 ![Spring AI](https://img.shields.io/badge/Spring%20AI-OpenAI%2FOllama-blueviolet?logo=openai)
 ![Global Exception Handler](https://img.shields.io/badge/Error%20Handling-Custom--Exceptions-critical)
-
+![JUnit](https://img.shields.io/badge/JUnit-Testing-red?logo=junit5)
 
 
 ---
@@ -48,40 +48,58 @@ Github/
 
 ### 
 
-`application.properties` örneği:
+`application.yml` örneği::
 
 ```properties
-spring.application.name=githubfiles
 
-# Database
-spring.datasource.url=jdbc:postgresql://localhost:5432/code_analyzer_db
-spring.datasource.username=${DB_USERNAME}
-spring.datasource.password=${DB_PASSWORD}
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring:
+  application:
+    name: githubfiles
 
-# AI varsayılan sağlayıcı ve model
-ai.default.provider=ollama
-ai.default.model=gemma3:4b
+  datasource:
+    url: jdbc:postgresql://postgres:5432/code_analyzer_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
-# OpenAI Ayarları
-spring.ai.openai.api-key=${OPENAI_API_KEY}
-#spring.ai.openai.chat.model=gpt-4o
-spring.ai.openai.chat.temperature=0.2
-spring.ai.openai.chat.top-p=1.0
-spring.ai.openai.chat.timeout=60s
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
 
-# Ollama Ayarları
-spring.ai.ollama.base-url=http://localhost:11434
-#spring.ai.ollama.chat.options.model=gemma3:4b
-spring.ai.ollama.chat.options.temperature=0.2
-spring.ai.ollama.chat.options.top-p=1.0
-spring.ai.ollama.chat.timeout=60s
+  sql:
+    init:
+      mode: always
 
-# JWT
-jwt.secret=${JWT_SECRET}
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        temperature: 0.2
+        top-p: 1.0
+        timeout: 60s
+    ollama:
+      base-url: http://ollama:11434
+      chat:
+        options:
+          temperature: 0.2
+          top-p: 1.0
+        timeout: 60s
+
+ai:
+  default:
+    provider: ollama
+    model: gemma3:4b
+
+jwt:
+  secret: ${JWT_SECRET}
+
+---
 
 ### 🧠 Yapay Zeka Desteği
 
@@ -95,13 +113,16 @@ Uygulama, yerel çalışan modellerle (Ollama) veya OpenAI API ile analiz gerçe
 - REST API üzerinden backend ile haberleşir
 - Kullanıcı analiz başlatabilir ve sonuçları PDF olarak indirebilir
 
-### Kurulum:
+## 🧠 Backend (Spring Boot)
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+- ✅ Spring Boot 3.4.7 ile geliştirilmiştir.
+- 🔐 Spring Security kullanılarak JWT tabanlı kimlik doğrulama uygulanmıştır.
+- 🗄️ Spring Data JPA + PostgreSQL veritabanı yönetimi sağlar.
+- 🧠 Yapay zeka analizleri için Spring AI ile OpenAI ve Ollama entegre edilmiştir.
+- 📄 OpenPDF kullanılarak analiz sonuçları PDF formatında raporlanır.
+- 🔗 Frontend ile REST API mimarisi üzerinden iletişim kurar.
+- 📘 Springdoc (OpenAPI) ile Swagger UI desteği mevcuttur.
+- 🧹 Global Exception Handler sayesinde tüm hatalar standart formatta yönetilir.
 
 ---
 
@@ -127,8 +148,6 @@ OPENAI_API_KEY=your-openai-key
 GITHUB_TOKEN=your-github-token
 ```
 
----
-
 ### 2.🐳 Docker Compose ile Başlat:
 
 Projenin kök dizininde:
@@ -136,8 +155,6 @@ Projenin kök dizininde:
 ```bash
 docker-compose up --build
 ```
-
----
 
 ### 3. Servislere Erişim
 
@@ -147,8 +164,6 @@ docker-compose up --build
 | Frontend UI    | http://localhost:5173        |
 | Ollama (LLM)   | http://localhost:11434       |
 | PostgreSQL     | localhost:5432 (iç bağlantı) |
-
----
 
 ### 4. Temiz Başlatmak İstersen
 

@@ -28,10 +28,4 @@ public class ReportPreviewDto {
     @NotBlank
     private Long reportId;
 
-    /*
-    public ReportPreviewDto(String modelName, LocalDateTime generatedAt, String filePath) {
-        this.modelName = modelName;
-        this.generatedAt = generatedAt;
-        this.filePath = filePath;
-    }*/
 }

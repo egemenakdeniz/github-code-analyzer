@@ -59,10 +59,33 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
-    background-color: #f9f9f9;
+    background-color: #1e90ff; /* canlı mavi */
+    color: white;
+    border: none;
+  }
+
+  button:hover {
+    background-color: #0d70d1;
+  }
+
+  button:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+  }
+
+  select {
+    background-color: white;
+    color: #212121;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 0.5em;
+    font-size: 14px;
   }
 }

@@ -1,6 +1,5 @@
 package org.example.githubfiles.service;
 
-
 import lombok.RequiredArgsConstructor;
 import org.example.githubfiles.exception.badrequest.EmptyPasswordException;
 import org.example.githubfiles.exception.badrequest.EmptyUsernameException;
@@ -9,7 +8,6 @@ import org.example.githubfiles.model.AppUser;
 import org.example.githubfiles.repository.AppUserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
 @Service

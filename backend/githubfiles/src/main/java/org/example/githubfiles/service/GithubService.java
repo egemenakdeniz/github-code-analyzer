@@ -17,19 +17,24 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.json.*;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
 public class GithubService {
 
-    private final String token = System.getenv("GITHUB_TOKEN");
+    //private final String token = System.getenv("GITHUB_TOKEN");
     private final String GITHUB_API = "https://api.github.com";
+
+    private final String token;
+    public GithubService() {
+        this.token = System.getenv("GITHUB_TOKEN");
+    }
+    // Test için kullanılabilecek constructor
+    public GithubService(String token) {
+        this.token = token;
+    }
+
 
     private static final Set<String> CODE_EXTENSIONS = Set.of(
             ".java", ".py", ".js", ".ts", ".jsx", ".tsx",
@@ -59,6 +64,8 @@ public class GithubService {
         ResponseEntity<String> response;
         try {
             response = new RestTemplate().exchange(treeUrl, HttpMethod.GET, entity, String.class);
+        }catch (HttpClientErrorException.Unauthorized e) {
+            throw new GithubAuthenticationException("GitHub token invalid or unauthorized for repository: " + repository.getRepoName());
         }
         catch (HttpClientErrorException.NotFound e) {
             throw new RepositoryNotFoundException("Repository or branch not found: " + repository.getRepoName());
@@ -108,7 +115,7 @@ public class GithubService {
     }
 
 
-    private String fetchFileContent(String owner, String repo, String path, String branch) {
+    public String fetchFileContent(String owner, String repo, String path, String branch) {
         String fileUrl = String.format("%s/repos/%s/%s/contents/%s?ref=%s", GITHUB_API, owner, repo, path, branch);
         HttpHeaders headers = buildHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -118,7 +125,8 @@ public class GithubService {
             response = new RestTemplate().exchange(fileUrl, HttpMethod.GET, entity, String.class);
         } catch (HttpClientErrorException.NotFound e) {
             throw new FileNotFoundOnGithubException("File not found on GitHub: " + path);
-        } catch (HttpClientErrorException.Forbidden e) {
+        }
+         catch (HttpClientErrorException.Forbidden e) {
             if (e.getResponseBodyAsString().contains("rate limit")) {
                 throw new GithubApiRateLimitExceededException("Rate limit exceeded while fetching file: " + path);
             } else {
