@@ -3,7 +3,7 @@ spring:
     name: githubfiles
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/code_analyzer_db
+    url: jdbc:postgresql://postgres:5432/code_analyzer_db
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
@@ -29,7 +29,7 @@ spring:
         top-p: 1.0
         timeout: 60s
     ollama:
-      base-url: http://localhost:11434
+      base-url: http://ollama:11434
       chat:
         options:
           temperature: 0.2

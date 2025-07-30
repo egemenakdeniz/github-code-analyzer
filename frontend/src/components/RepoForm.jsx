@@ -26,7 +26,7 @@ export default function RepoForm({ onRepoAdded }) {
       };
 
       const res = await axiosInstance.post('/api/repositories/import', payload);
-      setResponse({ status: 'success', message: res.data || 'Repo başarıyla eklendi.' });
+      setResponse({ status: 'success', message: res.data?.message || 'Repo başarıyla eklendi.' });
       onRepoAdded?.();
     } catch (err) {
       console.error('Repo ekleme hatası:', err);
