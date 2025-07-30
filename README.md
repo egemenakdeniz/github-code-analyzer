@@ -42,6 +42,15 @@ Github/
 
 ## ⚙️ Backend (Spring Boot)
 
+- ✅ Spring Boot 3.4.7 ile geliştirilmiştir.
+- 🔐 Spring Security kullanılarak JWT tabanlı kimlik doğrulama uygulanmıştır.
+- 🗄️ Spring Data JPA + PostgreSQL veritabanı yönetimi sağlar.
+- 🧠 Yapay zeka analizleri için Spring AI ile OpenAI ve Ollama entegre edilmiştir.
+- 📄 OpenPDF kullanılarak analiz sonuçları PDF formatında raporlanır.
+- 🔗 Frontend ile REST API mimarisi üzerinden iletişim kurar.
+- 📘 Springdoc (OpenAPI) ile Swagger UI desteği mevcuttur.
+- 🧹 Global Exception Handler sayesinde tüm hatalar standart formatta yönetilir.
+
 ### 📁 Modüller
 
 - `githubfiles`: Ana Spring Boot uygulaması
@@ -50,7 +59,7 @@ Github/
 
 `application.yml` örneği::
 
-```properties
+```yml
 
 spring:
   application:
@@ -98,6 +107,7 @@ ai:
 
 jwt:
   secret: ${JWT_SECRET}
+```
 
 ---
 
@@ -112,17 +122,6 @@ Uygulama, yerel çalışan modellerle (Ollama) veya OpenAI API ile analiz gerçe
 - Vite + React ile geliştirilmiştir
 - REST API üzerinden backend ile haberleşir
 - Kullanıcı analiz başlatabilir ve sonuçları PDF olarak indirebilir
-
-## 🧠 Backend (Spring Boot)
-
-- ✅ Spring Boot 3.4.7 ile geliştirilmiştir.
-- 🔐 Spring Security kullanılarak JWT tabanlı kimlik doğrulama uygulanmıştır.
-- 🗄️ Spring Data JPA + PostgreSQL veritabanı yönetimi sağlar.
-- 🧠 Yapay zeka analizleri için Spring AI ile OpenAI ve Ollama entegre edilmiştir.
-- 📄 OpenPDF kullanılarak analiz sonuçları PDF formatında raporlanır.
-- 🔗 Frontend ile REST API mimarisi üzerinden iletişim kurar.
-- 📘 Springdoc (OpenAPI) ile Swagger UI desteği mevcuttur.
-- 🧹 Global Exception Handler sayesinde tüm hatalar standart formatta yönetilir.
 
 ---
 
