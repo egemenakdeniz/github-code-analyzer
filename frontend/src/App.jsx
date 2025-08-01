@@ -10,6 +10,8 @@ function App() {
     const [reloadKey, setReloadKey] = useState(0);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+    
+
   const handleRepoAdded = () => {
   setReloadKey(prev => prev + 1);
   };
@@ -31,7 +33,7 @@ function App() {
     <Login onLoginSuccess={handleLoginSuccess} />
   ) : (
     <>
-      <div style={{ textAlign: "right", padding: "10px 20px" }}>
+      <div className='logout'>
         <button onClick={handleLogout}>Çıkış Yap</button>
       </div>
 

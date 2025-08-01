@@ -36,7 +36,7 @@ export default function RepoForm({ onRepoAdded }) {
 
   return (
     <div style={{ maxWidth: '500px', margin: '0 auto', padding: '2rem' }}>
-      <h2>GitHub Repository Ekle</h2>
+      <h2 style={{marginTop:'-10px'}}>GitHub Repository Ekle</h2>
 
       <div style={{ marginBottom: '1rem' }}>
         <label>Kullanıcı Adı</label>

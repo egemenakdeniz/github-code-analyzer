@@ -47,7 +47,7 @@ export default function LoadedRepos({ selectedRepo, setSelectedRepo, reloadTrigg
 
       alert(data.message);
 
-      await handleCheckAll(); // Güncelleme sonrası yeniden kontrol
+      await handleCheckAll();
     } catch (err) {
       setRepos(prev =>
         prev.map(r => r.id === repoId ? { ...r, loading: false } : r)
@@ -99,7 +99,7 @@ export default function LoadedRepos({ selectedRepo, setSelectedRepo, reloadTrigg
 
   return (
     <div>
-      <h3>HALİ HAZIRDA YÜKLENMİŞ OLANLAR</h3>
+      <h3>Yüklenmiş Repositoriyler</h3>
 
       <button onClick={handleCheckAll} style={{ marginBottom: "1rem" }}>
         Tümünü Kontrol Et
@@ -160,7 +160,7 @@ export default function LoadedRepos({ selectedRepo, setSelectedRepo, reloadTrigg
               className={r.loading ? "refresh-icon spinning" : "refresh-icon"}
               onClick={() => handleRefresh(r.id)}
               title="Bu repoyu güncelle"
-              style={{ cursor: "pointer", fontSize: "1.2rem", marginLeft: "10px" }}
+              style={{ cursor: "pointer", fontSize: "1.2rem", marginLeft: "10px",color:"gray" }}
             >
               ↻
             </span>

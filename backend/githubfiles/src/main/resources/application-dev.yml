@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: githubfiles
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/code_analyzer_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  sql:
+    init:
+      mode: always
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        temperature: 0.2
+        top-p: 1.0
+        timeout: 60s
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          temperature: 0.2
+          top-p: 1.0
+        timeout: 60s
+
+ai:
+  default:
+    provider: ollama
+    model: gemma3:4b
+
+jwt:
+  secret: ${JWT_SECRET}
