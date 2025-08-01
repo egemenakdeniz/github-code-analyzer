@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ModelService {
 
+    @Value("${spring.ai.ollama.base-url}")
+    private String ollamaBaseUrl;
+
     @Value("${openai.api.key}")
     private String openAiApiKey;
 
@@ -56,7 +59,7 @@ public class ModelService {
     }
 
     public ModelsResponseDto getOllamaModels() {
-        String url = "http://localhost:11434/api/tags";
+        String url = ollamaBaseUrl + "/api/tags";
 
         try {
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
