@@ -16,6 +16,7 @@ public class ModelService {
     @Value("${spring.ai.ollama.base-url}")
     private String baseUrl;
 
+
     @Value("${openai.api.key}")
     private String openAiApiKey;
 
