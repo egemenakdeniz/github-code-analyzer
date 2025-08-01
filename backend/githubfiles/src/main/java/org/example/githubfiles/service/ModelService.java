@@ -14,7 +14,8 @@ import java.util.stream.Collectors;
 public class ModelService {
 
     @Value("${spring.ai.ollama.base-url}")
-    private String ollamaBaseUrl;
+    private String baseUrl;
+
 
     @Value("${openai.api.key}")
     private String openAiApiKey;
@@ -59,7 +60,7 @@ public class ModelService {
     }
 
     public ModelsResponseDto getOllamaModels() {
-        String url = ollamaBaseUrl + "/api/tags";
+        String url = baseUrl+"/api/tags";
 
         try {
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
