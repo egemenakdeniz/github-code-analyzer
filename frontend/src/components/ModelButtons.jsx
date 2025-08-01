@@ -1,19 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosInstance from '../api/axiosInstance';
-
-const modelsByProvider = {
-  openai: ["gpt-4", "gpt-4o", "gpt-3.5-turbo"],
-  ollama: ["gemma3:4b"]
-};
 
 export default function ModelButtons({ selectedRepo, onAnalysisComplete }) {
   const [provider, setProvider] = useState("");
   const [model, setModel] = useState("");
 
+  const [modelsByProvider, setModelsByProvider] = useState({
+    openai: [],
+    ollama: []
+  });
+
+  useEffect(() => {
+    const fetchOpenAIModels = async () => {
+      try {
+        const res = await axiosInstance.get("/api/models/openai");
+        if (res.status === 200 && res.data.models) {
+          setModelsByProvider(prev => ({
+            ...prev,
+            openai: res.data.models
+          }));
+        }
+      } catch (error) {
+        console.error("OpenAI modelleri alınamadı:", error);
+      }
+    };
+
+    const fetchOllamaModels = async () => {
+      try {
+        const res = await axiosInstance.get("/api/models/ollama");
+        if (res.status === 200 && res.data.models) {
+          setModelsByProvider(prev => ({
+            ...prev,
+            ollama: res.data.models
+          }));
+        }
+      } catch (error) {
+        console.error("Ollama modelleri alınamadı:", error);
+      }
+    };
+
+    fetchOpenAIModels();
+    fetchOllamaModels();
+  }, []);
+
   const handleProviderChange = (e) => {
     const selected = e.target.value;
     setProvider(selected);
-    setModel(""); // provider değişince modeli sıfırla
+    setModel(""); // sağlayıcı değiştiğinde modeli sıfırla
   };
 
   const handleAnalyze = async () => {
@@ -42,9 +75,9 @@ export default function ModelButtons({ selectedRepo, onAnalysisComplete }) {
     } catch (error) {
       console.error("İstek hatası:", error);
       const message =
-      error.response?.data?.message || // backend hatası varsa
-      error.message ||                 // axios genel hata mesajı
-      "İstek gönderilirken bir hata oluştu.";
+        error.response?.data?.message ||
+        error.message ||
+        "İstek gönderilirken bir hata oluştu.";
       alert(message);
     }
   };

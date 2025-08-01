@@ -29,6 +29,31 @@ Spring Boot + React kullanılarak geliştirilmiş bir statik kod analiz uygulama
 
 ---
 
+## 🖼️ Uygulama Ekran Görüntüleri
+
+### 🔐 Giriş Ekranı
+![Login Screen](images/login_screen.jpg)
+
+### 🧠 Ana Sayfa
+![Analyze Screen](images/analyze_screen.jpg)
+
+`Kullanıcı burada GitHub reposunu girerek analiz başlatabilir.`
+
+### 📋 Rapor Listesi
+![Report List Screen](images/report_list_screen.jpg)
+
+`Geçmiş analiz raporlarının listelendiği ekran.`
+
+### 📄 Örnek Rapor
+![Analyze Report](images/analyze_report.jpg)
+
+`Yapay zeka tarafından oluşturulmuş örnek bir PDF analiz raporu önizlemesi.`  
+`Kullanıcı raporu cihazına indirebilir veya görüntüleyebilir.`
+
+---
+
+---
+
 ## 📁 Proje Yapısı
 
 ```

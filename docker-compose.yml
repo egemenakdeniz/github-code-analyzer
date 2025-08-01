@@ -25,6 +25,10 @@ services:
       - ollama_models:/root/.ollama
     networks:
       - github
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+    runtime: nvidia
     entrypoint: /bin/bash
     command: -c "ollama serve & sleep 5 && ollama run gemma3:4b && tail -f /dev/null"
 
@@ -39,6 +43,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      SPRING_PROFILES_ACTIVE: docker
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}

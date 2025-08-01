@@ -18,18 +18,13 @@ body {
 }
 
 .left-panel, .right-panel {
-  background-color: white;
+  width: 420px;
+  background:#4B0150;
+  color:#fff;
   padding: 30px;
-  border-radius: 12px;
+  border-radius: 10px;
   width: 400px;
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}
-
-label {
-  font-size: 16px;
-  margin-top: 10px;
-  display: block;
-  font-weight: bold;
 }
 
 input {
@@ -38,42 +33,38 @@ input {
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  background-color: #1e90ff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-button:hover {
-  background-color: #0d70d1;
 }
 
 .loaded-area {
-  background-color: #eef3ff;
+  background:#4B0150;
   padding: 12px;
   border-radius: 6px;
   margin-top: 10px;
   font-size: 15px;
-
-  /* Kaydırma özellikleri */
-  max-height: 250px;      /* yükseklik sınırlaması */
-  overflow-y: auto;       /* dikeyde scroll aktif */
+  max-height: 250px;
+  overflow-y: auto;
 }
 .loaded-area::-webkit-scrollbar {
   width: 6px;
+}
+html.report-page,
+body.report-page {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  height: auto;
+  background: white !important;
+  background-image: none !important;
+
 }
 
 .loaded-area::-webkit-scrollbar-thumb {
   background-color: #aaa;
   border-radius: 10px;
+}
+
+.logout {
+text-align:  "right";
+padding: "10px 20px";
+
 }

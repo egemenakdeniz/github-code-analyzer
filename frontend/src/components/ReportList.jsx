@@ -10,6 +10,14 @@ export default function ReportList() {
   const branch = query.get("branch");
 
   useEffect(() => {
+  document.body.classList.add("report-page");
+
+  return () => {
+    document.body.classList.remove("report-page");
+  };
+}, []);
+
+  useEffect(() => {
     if (!owner || !repo || !branch) return;
 
     const fetchReports = async () => {
@@ -22,6 +30,7 @@ export default function ReportList() {
         console.error("Raporları alma hatası:", err);
         setReports([]);
       }
+      
     };
 
     fetchReports();
@@ -33,7 +42,7 @@ export default function ReportList() {
   };
 
   return (
-    <div style={{ padding: "30px" }}>
+    <div style={{padding: "30px"}}>
       <h2>{owner}/{repo}/{branch} için Raporlar</h2>
 
       {reports.length === 0 ? (

@@ -37,9 +37,9 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/api/repositories/**"),
                                 new AntPathRequestMatcher("/api/analyze/**"),
                                 new AntPathRequestMatcher("/api/reports/**"),
-                                new AntPathRequestMatcher("/api/repositories/**")
-
-                        ).permitAll()
+                                new AntPathRequestMatcher("/api/repositories/**"),
+                                new AntPathRequestMatcher("/api/models/**")
+                                ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

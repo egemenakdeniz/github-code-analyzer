@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
+import { FaUser } from "react-icons/fa";
 import axiosInstance from '../api/axiosInstance';
+import { FaLock } from "react-icons/fa";
+import './Login.css'
+import '../index.css'
+
+
 
 const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('');
@@ -29,8 +35,10 @@ const handleLogin = async (e) => {
   };
 
   return (
-    <form onSubmit={handleLogin} style={{ maxWidth: 300, margin: '100px auto', display: 'flex', flexDirection: 'column' }}>
-      <h2>Giriş Yap</h2>
+    <div className='wrapper'>
+    <form onSubmit={handleLogin}>
+      <h1>Giriş Yap</h1>
+      <div className='input-box'>
       <input
         type="text"
         placeholder="Kullanıcı Adı"
@@ -38,6 +46,9 @@ const handleLogin = async (e) => {
         onChange={(e) => setUsername(e.target.value)}
         required
       />
+      <FaUser className='icon'/>
+      </div>
+      <div className='input-box' >
       <input
         type="password"
         placeholder="Şifre"
@@ -45,9 +56,12 @@ const handleLogin = async (e) => {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-      <button type="submit">Giriş</button>
+      <FaLock className='icon'/>
+      </div>
+      <button type="submit">Giriş Yap</button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </form>
+    </div>
   );
 };
 
