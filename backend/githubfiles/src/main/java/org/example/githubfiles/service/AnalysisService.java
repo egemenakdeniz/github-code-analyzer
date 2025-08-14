@@ -2,11 +2,9 @@ package org.example.githubfiles.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.githubfiles.exception.badgateway.AiResponseFilePathMismatchException;
 import org.example.githubfiles.exception.badgateway.EmptyAiResponseException;
 import org.example.githubfiles.exception.conflict.AlreadyBeingAnalyzedException;
 import org.example.githubfiles.exception.internal.PdfDocumentCreationException;
-import org.example.githubfiles.exception.internal.ResultParsingException;
 import org.example.githubfiles.exception.notfound.RepositoryNotFoundException;
 import org.example.githubfiles.status.AnalysisStatus;
 import org.example.githubfiles.exception.unavailable.NetworkUnavailableException;
