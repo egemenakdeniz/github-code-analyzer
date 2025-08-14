@@ -59,6 +59,7 @@ public class AiService {
             case "openai" -> {
                 chatClient = openAiChatClient;
                 options = OpenAiChatOptions.builder()
+                        .temperature(1.0)
                         .model(finalModel)
                         .build();
             }
@@ -66,6 +67,7 @@ public class AiService {
                 chatClient = ollamaChatClient;
                 options = OllamaOptions.builder()
                         .model(finalModel)
+                        .temperature(1.0)
                         .build();
             }
             default -> throw new UnsupportedProviderException("Unsupported provider: " + provider);

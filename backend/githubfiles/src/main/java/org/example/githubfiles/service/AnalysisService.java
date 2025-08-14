@@ -2,11 +2,9 @@ package org.example.githubfiles.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.githubfiles.exception.badgateway.AiResponseFilePathMismatchException;
 import org.example.githubfiles.exception.badgateway.EmptyAiResponseException;
 import org.example.githubfiles.exception.conflict.AlreadyBeingAnalyzedException;
 import org.example.githubfiles.exception.internal.PdfDocumentCreationException;
-import org.example.githubfiles.exception.internal.ResultParsingException;
 import org.example.githubfiles.exception.notfound.RepositoryNotFoundException;
 import org.example.githubfiles.status.AnalysisStatus;
 import org.example.githubfiles.exception.unavailable.NetworkUnavailableException;
@@ -67,10 +65,10 @@ public class AnalysisService {
                 prmt.append("content:\n");
                 prmt.append(file.getContent()).append("\n");
 
-                log.info(file.getPath());
-                log.info("Model Name : "+modelName);
+                log.warn(file.getPath());
+                log.warn("Model Name : "+modelName);
                 String modelResult = aiService.ask("ollama",modelName,prmt.toString().replace("\t", "    "));
-                log.info(modelResult);
+                log.warn(modelResult);
                 result = result + modelResult;
             }
         }
@@ -85,9 +83,9 @@ public class AnalysisService {
                 prmt.append("content:\n");
                 prmt.append(file.getContent()).append("\n");
 
-                log.debug(file.getPath());
+                log.warn(file.getPath());
                 String modelResult = aiService.ask("openai",modelName,prmt.toString().replace("\t", "    "));
-                log.debug(modelResult);
+                log.warn(modelResult);
                 result = result + modelResult;
             }
         }else {
@@ -125,7 +123,6 @@ public class AnalysisService {
         }finally {
             status.set(AnalysisStatus.IDLE);
         }
-        //return "SONUC: "+result;
     }
 
     private StringBuilder getPromtStart(){
@@ -173,39 +170,87 @@ public class AnalysisService {
             throw new EmptyAiResponseException("The AI response is empty or invalid.");
         }
 
-        List<Result> results = new ArrayList<>();
-        Result current = null;
-        String currentFileName = null;
+        String[] lines = response.replace("\r", "").split("\n");
 
-        try{
-            for (String line : response.split("\n")) {
-                if (line.startsWith("FILE:")) {
-                    current = new Result();
-                    currentFileName = line.substring(5).trim();
-                    System.out.println(currentFileName);
-                    Optional<File> fileOpt = fileRepository.findByPathAndRepository_IdAndIsActiveTrue(currentFileName, session.getRepository().getId());
+        List<Result> results = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>(); // dedupe key’leri
+        java.util.Set<String> allowedSev = java.util.Set.of("TRIVIAL", "MID", "CRITICAL");
+
+        Result current = null;
+        String filePath = null;
+
+        java.util.Map<String, File> fileCache = new java.util.HashMap<>();
+
+        for (String raw : lines) {
+            String line = raw.trim();
+            if (line.isEmpty()) continue;
+
+            if (line.startsWith("FILE:")) {
+                current = new Result();
+                filePath = line.substring(5).trim();
+
+                File f = fileCache.get(filePath);
+                if (f == null) {
+                    Optional<File> fileOpt = fileRepository.findByPathAndRepository_IdAndIsActiveTrue(
+                            filePath, session.getRepository().getId());
                     if (fileOpt.isEmpty()) {
-                        throw new AiResponseFilePathMismatchException("The AI returned a file path that does not exist: " + currentFileName);
+                        log.warn("AI returned unknown file path, skipping block: {}", filePath);
+                        current = null;
+                        filePath = null;
+                        continue;
                     }
-                    current.setFile(fileOpt.get());
-                } else if (line.startsWith("CLASS:")) {
-                    current.setClass_name(line.substring(6).trim());
-                } else if (line.startsWith("SEVERITY:")) {
-                    current.setSeverity(line.substring(9).trim());
-                } else if (line.startsWith("ISSUE:")) {
-                    current.setIssue(line.substring(6).trim());
-                } else if (line.startsWith("SUGGESTION:")) {
-                    current.setSuggestions(line.substring(11).trim());
-                    current.setSession(session);
-                    current.setAnalyzed_at(LocalDateTime.now());
-                    results.add(current);
+                    f = fileOpt.get();
+                    fileCache.put(filePath, f);
                 }
+                current.setFile(f);
+
+            } else if (current != null && line.startsWith("CLASS:")) {
+                String cls = line.substring(6).trim();
+                current.setClass_name(cls.isEmpty() ? "N/A" : cls);
+
+            } else if (current != null && line.startsWith("SEVERITY:")) {
+                String sev = line.substring(9).trim().toUpperCase();
+                current.setSeverity(allowedSev.contains(sev) ? sev : "MID");
+
+            } else if (current != null && line.startsWith("ISSUE:")) {
+                current.setIssue(line.substring(6).trim());
+
+            } else if (current != null && line.startsWith("SUGGESTION:")) {
+                current.setSuggestions(line.substring(11).trim());
+
+                if (current.getClass_name() == null || current.getClass_name().isBlank()) {
+                    current.setClass_name("N/A");
+                }
+                if (current.getSeverity() == null || current.getSeverity().isBlank()) {
+                    current.setSeverity("MID");
+                }
+                if (current.getIssue() == null || current.getIssue().isBlank()) {
+                    log.warn("Skipping block with empty ISSUE for file {}", filePath);
+                    current = null;
+                    filePath = null;
+                    continue;
+                }
+
+                current.setSession(session);
+                current.setAnalyzed_at(LocalDateTime.now());
+
+                String key = current.getFile().getPath() + "|" +
+                        current.getClass_name() + "|" +
+                        current.getSeverity() + "|" +
+                        current.getIssue() + "|" +
+                        current.getSuggestions();
+
+                if (seen.add(key)) {
+                    results.add(current);
+                } else {
+                    log.debug("Duplicate result skipped: {}", key);
+                }
+
+                current = null;
+                filePath = null;
             }
         }
-        catch (Exception e) {
-            log.error("Yanıt parse edilirken hata oluştu", e);
-            throw new ResultParsingException("An error occurred while processing the AI response.");
-        }
+
         return results;
     }
 
