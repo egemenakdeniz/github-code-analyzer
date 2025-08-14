@@ -125,7 +125,6 @@ public class AnalysisService {
         }finally {
             status.set(AnalysisStatus.IDLE);
         }
-        //return "SONUC: "+result;
     }
 
     private StringBuilder getPromtStart(){
@@ -173,7 +172,6 @@ public class AnalysisService {
             throw new EmptyAiResponseException("The AI response is empty or invalid.");
         }
 
-        // Normalize line endings and split
         String[] lines = response.replace("\r", "").split("\n");
 
         List<Result> results = new ArrayList<>();
@@ -183,7 +181,6 @@ public class AnalysisService {
         Result current = null;
         String filePath = null;
 
-        // Aynı repo için dosya path -> File cache’i (DB sorgusunu azaltır)
         java.util.Map<String, File> fileCache = new java.util.HashMap<>();
 
         for (String raw : lines) {
@@ -191,19 +188,15 @@ public class AnalysisService {
             if (line.isEmpty()) continue;
 
             if (line.startsWith("FILE:")) {
-                // Yeni blok başlat — önceki eksik bloğu at
                 current = new Result();
                 filePath = line.substring(5).trim();
 
-                // File lookup (cache’li)
                 File f = fileCache.get(filePath);
                 if (f == null) {
                     Optional<File> fileOpt = fileRepository.findByPathAndRepository_IdAndIsActiveTrue(
                             filePath, session.getRepository().getId());
                     if (fileOpt.isEmpty()) {
                         log.warn("AI returned unknown file path, skipping block: {}", filePath);
-                        // Eski davranışa dönmek istersen aşağıdaki throw’u aç:
-                        // throw new AiResponseFilePathMismatchException("The AI returned a file path that does not exist: " + filePath);
                         current = null;
                         filePath = null;
                         continue;
@@ -227,7 +220,6 @@ public class AnalysisService {
             } else if (current != null && line.startsWith("SUGGESTION:")) {
                 current.setSuggestions(line.substring(11).trim());
 
-                // Blok tamamlandı — alanları tamamla/normalize et
                 if (current.getClass_name() == null || current.getClass_name().isBlank()) {
                     current.setClass_name("N/A");
                 }
@@ -235,7 +227,6 @@ public class AnalysisService {
                     current.setSeverity("MID");
                 }
                 if (current.getIssue() == null || current.getIssue().isBlank()) {
-                    // ISSUE yoksa bu bloğu atla
                     log.warn("Skipping block with empty ISSUE for file {}", filePath);
                     current = null;
                     filePath = null;
@@ -245,7 +236,6 @@ public class AnalysisService {
                 current.setSession(session);
                 current.setAnalyzed_at(LocalDateTime.now());
 
-                // Dedupe anahtarı: FILE|CLASS|SEVERITY|ISSUE|SUGGESTION
                 String key = current.getFile().getPath() + "|" +
                         current.getClass_name() + "|" +
                         current.getSeverity() + "|" +
@@ -258,7 +248,6 @@ public class AnalysisService {
                     log.debug("Duplicate result skipped: {}", key);
                 }
 
-                // Blok bitti
                 current = null;
                 filePath = null;
             }
