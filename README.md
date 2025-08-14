@@ -150,6 +150,7 @@ Uygulama, yerel çalışan modellerle (Ollama) veya OpenAI API ile analiz gerçe
 - REST API üzerinden backend ile haberleşir
 - Kullanıcı analiz başlatabilir ve sonuçları PDF olarak indirebilir
 
+
 ---
 
 ## 🗄️ Veritabanı Diyagramı
