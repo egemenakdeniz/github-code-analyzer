@@ -50,6 +50,8 @@ Spring Boot + React kullanılarak geliştirilmiş bir statik kod analiz uygulama
 `Yapay zeka tarafından oluşturulmuş örnek bir PDF analiz raporu önizlemesi.`  
 `Kullanıcı raporu cihazına indirebilir veya görüntüleyebilir.`
 
+📄 [Örnek Rapor PDF](docs/gemma.pdf)  
+`Gemma tarafından oluşturulan örnek raporun PDF versiyonu.`
 ---
 
 ---
@@ -67,6 +69,15 @@ Github/
 
 ## ⚙️ Backend (Spring Boot)
 
+- ✅ Spring Boot 3.4.7 ile geliştirilmiştir.
+- 🔐 Spring Security kullanılarak JWT tabanlı kimlik doğrulama uygulanmıştır.
+- 🗄️ Spring Data JPA + PostgreSQL veritabanı yönetimi sağlar.
+- 🧠 Yapay zeka analizleri için Spring AI ile OpenAI ve Ollama entegre edilmiştir.
+- 📄 OpenPDF kullanılarak analiz sonuçları PDF formatında raporlanır.
+- 🔗 Frontend ile REST API mimarisi üzerinden iletişim kurar.
+- 📘 Springdoc (OpenAPI) ile Swagger UI desteği mevcuttur.
+- 🧹 Global Exception Handler sayesinde tüm hatalar standart formatta yönetilir.
+
 ### 📁 Modüller
 
 - `githubfiles`: Ana Spring Boot uygulaması
@@ -75,7 +86,7 @@ Github/
 
 `application.yml` örneği::
 
-```properties
+```yml
 
 spring:
   application:
@@ -123,6 +134,7 @@ ai:
 
 jwt:
   secret: ${JWT_SECRET}
+```
 
 ---
 
@@ -138,16 +150,12 @@ Uygulama, yerel çalışan modellerle (Ollama) veya OpenAI API ile analiz gerçe
 - REST API üzerinden backend ile haberleşir
 - Kullanıcı analiz başlatabilir ve sonuçları PDF olarak indirebilir
 
-## 🧠 Backend (Spring Boot)
+---
 
-- ✅ Spring Boot 3.4.7 ile geliştirilmiştir.
-- 🔐 Spring Security kullanılarak JWT tabanlı kimlik doğrulama uygulanmıştır.
-- 🗄️ Spring Data JPA + PostgreSQL veritabanı yönetimi sağlar.
-- 🧠 Yapay zeka analizleri için Spring AI ile OpenAI ve Ollama entegre edilmiştir.
-- 📄 OpenPDF kullanılarak analiz sonuçları PDF formatında raporlanır.
-- 🔗 Frontend ile REST API mimarisi üzerinden iletişim kurar.
-- 📘 Springdoc (OpenAPI) ile Swagger UI desteği mevcuttur.
-- 🧹 Global Exception Handler sayesinde tüm hatalar standart formatta yönetilir.
+## 🗄️ Veritabanı Diyagramı
+
+![Database Diagram](images/database_diagram.png)  
+Uygulamanın kullandığı PostgreSQL şema diyagramı.
 
 ---
 
@@ -239,5 +247,6 @@ docker-compose up --build
 ## 🔓 Logout Akışı
 
 ![Logout Flow](images/logout_diagram.png)
+
 
 ---
